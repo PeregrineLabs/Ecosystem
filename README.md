@@ -1,7 +1,5 @@
-![](images/ecosystem.png?raw=true)
-
-# Ecosystem
-
+# Ecosystem 
+![Ecosystem](images/ecosystem.png?raw=true)
 ## Overview
 Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working enviornment is important (and it really should be!).  
 
