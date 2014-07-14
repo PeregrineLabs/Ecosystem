@@ -1,3 +1,5 @@
+![](images/ecosystem.png?raw=true)
+
 # Ecosystem
 
 ## Overview
