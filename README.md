@@ -6,6 +6,8 @@ Ecosystem is a cross-platform environment management system from [Peregrine Labs
 ## Why
 Although it may seem like a simple task we still find that many of the studios we work with don't have control over their environment which is the root of many problems (wrong versions of software being accessed, wrong shared object versions, incompatible versions, etc.).  Our hope is that Ecosystem may be used to not just solve these problems but improve workflow in general.  
 
+The toolset works extremely well in house, but the assumptions we've made may not fit into every workflow or pipeline - our hope is that studios interested in using Ecosystem provide feedback to make it more flexible so it is more general in scope.  
+
 For more information on the design concepts refer to our presentation from the 2012 TDForum conference - [Building and Leveraging a Cross Platform VFX/Animation Development Environment](http://peregrinelabs-share.s3.amazonaws.com/CDoncaster_TDForum2012.pdf)
 
 ## Details
