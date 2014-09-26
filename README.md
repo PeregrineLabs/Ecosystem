@@ -104,6 +104,9 @@ thus allowing it to be either a local file system or a network mount.
 
 Please email the list below if it's not completely obvious where Ecosystem is looking for installed software, based on your feedback we can update this introduction to help others.
 
+## Using CMake
+We've recently pushed all of our CMake files into the repository with the aim in helping others get started with cross platform VFX development.  This also includes template CMakeList files for various applications. 
+
 ## Development
 Ecosystem in some form has been used for quite some time within Peregrine Labs though it has been extracted from a much larger system used to manage distributed workflows that wouldn't have leant itself as well to an open source project (remote push/pull from specific servers).  With that said, if there is interest we would love to eventually evolve Ecosystem to create a more generic means of packaging up dependencies and depolying them along with environment management.
 

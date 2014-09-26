@@ -1,0 +1,1 @@
++ example @PG_MAJOR_VERSION@.@PG_MINOR_VERSION@.@PG_PATCH_VERSION@ path_to_example_root
