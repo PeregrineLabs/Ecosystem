@@ -152,20 +152,31 @@ class Variable:
         self.values = []
         self.dependencies = []
         self.strict = False
+        self.absolute = False
                 
     """Sets and/or appends a value to the Variable"""
     def appendValue(self, value):
         #Check to see if the value is platform dependent
         platform_value = None
         if (type(value) == dict):
+            if ('common' in value):
+                platform_value = value['common']
+                
             if (platform.system().lower() in value):
                 platform_value = value[platform.system().lower()]
+            
         else:
             platform_value = value
             
         if(type(value) == dict):
-        	if ('strict' in value):
-        		self.strict = value['strict']
+            if ('strict' in value):
+                self.strict = value['strict']
+            elif ('abs' in value):
+                if(type(value['abs']) == list):
+                    if(platform.system().lower() in value['abs']):
+                        self.absolute = True
+                else:
+                    self.absolute = value['abs']
             
         if (platform_value):
             if platform_value not in self.values:
@@ -204,6 +215,8 @@ class Variable:
         for var_value in self.values:
             if count != 0:
                 value = value + environment_seperator
+            if self.absolute:
+                var_value = os.path.abspath(var_value)
             value = value + var_value
             count = count + 1
         return value
