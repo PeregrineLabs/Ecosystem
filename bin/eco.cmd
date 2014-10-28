@@ -1,2 +1,2 @@
 @ECHO OFF
-python %ECO_ENV%/../bin/ecosystem.py %*
+python %ECO_ROOT%/bin/ecosystem.py %*
