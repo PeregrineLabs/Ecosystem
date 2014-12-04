@@ -78,7 +78,7 @@ IF( MAYA_LOCATION )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_GNU_SOURCE -DCC_GNU_ -D_LANGUAGE_C_PLUS_PLUS -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing -funsigned-char" )
 		
 		SET( CMAKE_CXX_FLAGS 
-		  "-fno-gnu-keywords"
+		  "${CMAKE_CXX_FLAGS} -fno-gnu-keywords"
 		  )
 		
 		SET( OS_LIBRARIES "" )
