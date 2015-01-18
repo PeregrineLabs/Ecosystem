@@ -223,6 +223,7 @@ class Variable:
 
 class Tool:
     """Defines a tool - more specifically, a version of a tool"""
+
     def __init__(self, filename):
         try:
             with open(filename, 'r') as f:
