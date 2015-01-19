@@ -34,7 +34,7 @@
 #TODO: check environment varialbe for loaded tools
 #TODO: unloading tools
 
-import os, glob, re, copy, getopt, sys, string, subprocess, platform
+import os, glob, re, copy, sys, string, subprocess, platform
 
 def  determineNumberOfCPUs():
     """ Number of virtual or physical CPUs on this system, i.e.
@@ -422,99 +422,100 @@ def listAvailableTools():
     for tool in tool_list:
         print tool
 
-def usage():
-    print 'Peregrine Ecosystem, environment, build and deploy management toolset v0.1.1'
-    print 'Usage:'
-    print '-h, --help         this help'
-    print '-t, --tools        specify a list of tools required seperated by commas'
-    print '-l, --listtools    list the available tools'
-    print '-b, --build        run the desired build process'
-    print '-d, --deploy       build and package the tool for deployment'
-    print '-f, --force        force the full CMake cache to be rebuilt'
-    print '-m, --make         just run make'
-    print '-r, --run          run an application'
-    print '-s, --setenv       output setenv statements to be used to set the shells environment'
-    
 def call_process(arguments):
 	if ( platform.system().lower() == 'windows' ):
 		subprocess.call(arguments, shell=True)
 	else:
 		subprocess.call(arguments)
 		
-def main(argv):                         
-    try:                                
-        opts, args = getopt.getopt(argv, "fmht:lbr:sd", ["force","make","help","tools=","listtools","build","run","setenv","deploy"]) 
-    except getopt.GetoptError:           
-        usage()                          
-        sys.exit(2)
-        
-    tools = []
-    run_build = False
-    force_rebuild = False
-    quick_build = False
-    run_application = None
-    set_environment = False
-    deploy = False
-    
-    for opt, arg in opts:                
-        if opt in ("-h", "--help"):      
-            usage()                     
-            sys.exit()                  
-        if opt in ("-l", "--listtools"):      
-            listAvailableTools()                     
-            sys.exit()                  
-        elif opt in ("-t", "--tools"): 
-            tools = string.split(arg, ',')            
-        elif opt in ("-f", "--force"):
-            force_rebuild = True
-        elif opt in ("-m", "--make"):
-            quick_build = True               
-        elif opt in ("-b", "--build"):
-            run_build = True
-        elif opt in ("-r", "--run"):
-            run_application = arg
-        elif opt in ("-s", "--setenv"):
-            set_environment = True
-        elif opt in ("-d", "--deploy"):
-            force_rebuild = True
-            run_build = True
-            deploy = True
-            quick_build = False
-            
-    if run_build:        
-        env = Environment(tools)
-        if ( env.success ):
-            env.getEnv(os.environ)
-            build_type = os.getenv('PG_BUILD_TYPE')
-            
-            if not quick_build:
-                if force_rebuild:
-                    try:
-                        open('CMakeCache.txt')
-                        os.remove('CMakeCache.txt')
-                    except IOError:
-                        print 'Cache doesnt exist...'
+def main(argv=None):
+    if argv is None:
+        arg = sys.argv[1:]
 
-                call_process(['cmake','-DCMAKE_BUILD_TYPE='+build_type,'-G', make_target, '..'])
-            
-            if deploy:
-                make_command.append("package")
-                
-            call_process(make_command)
-            sys.exit()
-    elif run_application:
-        env = Environment(tools)
-        if ( env.success ):
-			env.getEnv(os.environ)
-			call_process([run_application])
-        sys.exit()
-    elif set_environment:
-        env = Environment(tools)
-        if ( env.success ):
-            output = env.getEnv()
-            if ( output ):
-                print output
-        sys.exit()        
+    # parse the (command line) arguments; python 2.7+ (or download argparse)
+    import argparse
+    description = 'Peregrine Ecosystem, environment, build and deploy management toolset v0.1.1'
+    parser = argparse.ArgumentParser(prog='ecosystem',
+                                     formatter_class=argparse.RawTextHelpFormatter,
+                                     description=description,
+                                     epilog='''
+Example:
+    python ecosystem.py -t maya2014,vray3.05,yeti1.3.0 -r maya
+                                     ''')
+    parser.add_argument('-t', '--tools', type=str, default=None,
+                        help='spcify a list of tools required seperated by commas')
+    parser.add_argument('-l', '--listtools', action='store_true',
+                        help='list the available tools')
+    parser.add_argument('-b', '--build', action='store_true',
+                        help='run the desired build process')
+    parser.add_argument('-d', '--deploy', action='store_true',
+                        help='build and package the tool for deployment')
+    parser.add_argument('-f', '--force', action='store_true',
+                        help='force the full CMake cache to be rebuilt')
+    parser.add_argument('-m', '--make', action='store_true',
+                        help='just run make')
+    parser.add_argument('-r', '--run', type=str, default=None,
+                        help='run an application')
+    parser.add_argument('-s', '--setenv', action='store_true',
+                        help='output setenv statements to be used to set the shells environment')
+
+    args = parser.parse_args(argv)
+
+    if args.listtools:
+        listAvailableTools()
+        return 0
+
+    tools = args.tools.split(',') if args.tools is not None else []
+    run_application = args.run
+    set_environment = args.setenv
+    force_rebuild = args.force
+    quick_build = args.make
+    run_build = args.build
+    deploy = args.deploy
+    if deploy:
+        force_rebuild = True
+        run_build = True
+        quick_build = False
+
+    try:
+        if run_build:
+            env = Environment(tools)
+            if env.success:
+                env.getEnv(os.environ)
+                build_type = os.getenv('PG_BUILD_TYPE')
+
+                if not quick_build:
+                    if force_rebuild:
+                        try:
+                            open('CMakeCache.txt')
+                            os.remove('CMakeCache.txt')
+                        except IOError:
+                            print "Cache doesn't exist..."
+
+                    call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', make_target, '..'])
+
+                if deploy:
+                    make_command.append("package")
+
+                call_process(make_command)
+
+        elif run_application:
+            env = Environment(tools)
+            if env.success:
+                env.getEnv(os.environ)
+                call_process([run_application])
+
+        elif set_environment:
+            env = Environment(tools)
+            if env.success:
+                output = env.getEnv()
+                if output:
+                    print output
+        return 0
+    except Exception, e:
+        sys.stderr.write('ERROR: {0:s}'.format(str(e)))
+        return 1
+
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    sys.exit(main(sys.argv[1:]))
