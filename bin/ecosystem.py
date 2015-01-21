@@ -14,9 +14,9 @@
 #      documentation and/or other materials provided with the distribution.
 #
 #    * Neither the name of Peregrine Visual Storytelling Ltd., Peregrine Labs
-#	   and any of it's affiliates nor the names of any other contributors
-#	   to this software may be used to endorse or promote products derived
-#	   from this software without specific prior written permission.
+#      and any of it's affiliates nor the names of any other contributors
+#      to this software may be used to endorse or promote products derived
+#      from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 # IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -181,9 +181,7 @@ class Variable:
         if platform_value:
             if platform_value not in self.values:
                 self.values.append(platform_value)
-                var_dependencies = self.check_for_dependencies(platform_value)
-                # if var_dependencies is not None:
-                for var_dependency in var_dependencies:
+                for var_dependency in self.check_for_dependencies(platform_value):
                     if var_dependency not in self.dependencies:
                         self.dependencies.append(var_dependency)
 
@@ -195,12 +193,6 @@ class Variable:
         matched = self.dependency_re.findall(value)
         if matched:
             dependencies = [match[2:-1] for match in matched if match[2:-1] != self.name]
-            # dependencies = []
-            # for match in matched:
-            #     dependency = match[2:-1]
-            #     if dependency != self.name:
-            #         if dependency not in dependencies:
-            #             dependencies.append(dependency)
             return list(set(dependencies))
         else:
             return []
@@ -230,10 +222,6 @@ class Tool:
                 self.in_dictionary = eval(f.read())
         except IOError:
             print 'Unable to find file {0} ...'.format(filename)
-        # self.filename = filename
-        # f = open(filename, 'r')
-        # self.in_dictionary = eval(f.read())
-        # f.close()
 
         if self.in_dictionary:
             self.tool = self.in_dictionary['tool']
@@ -245,10 +233,6 @@ class Tool:
     def plaform_supported(self):
         """Check to see if the tool is supported on the current platform"""
         return platform.system().lower() in self.platforms if self.platforms else False
-        # if self.platforms:
-        #     if platform.system().lower() in self.platforms:
-        #         return True
-        # return False
 
     def get_vars(self, env):
         for name, value in self.in_dictionary['environment'].items():
@@ -264,12 +248,6 @@ class Tool:
                         if name not in env.variables:
                             env.variables[name] = Variable(name)
                         env.variables[name].append_value(value)
-
-    # def defines_variable(self, var):
-    #     """Checks to see if this tool defines the given variables"""
-    #     if var in self.variables:
-    #         return True
-    #     return False
 
 
 class Environment:
@@ -289,14 +267,9 @@ class Environment:
 
         # reads all of the found .env files, parses the tool name and version and checked that against our want list
         possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
-        # possible_tools = glob.glob(self.environment_files)
-        # for file_name in possible_tools:
-        #     new_tool = Tool(file_name)
         for new_tool in possible_tools:
             if new_tool.plaform_supported:
                 tool_name = new_tool.tool + new_tool.version if new_tool.version != '' else new_tool.tool
-                # if new_tool.version != '':
-                #     tool_name = tool_name + new_tool.version
                 if tool_name in self.wants:
                     if new_tool.tool in self.tools:
                         print 'Duplicate tool specified: \
@@ -312,11 +285,6 @@ class Environment:
 
         if len(self.wants) != 0:
             missing_tools = ', '.join(self.wants)
-            # missing_tools = str()
-            # for missing_tool in self.wants:
-            #     if len(missing_tools) > 0:
-            #         missing_tools += ', '
-            #     missing_tools += missing_tool
             print 'Unable to resolve all of the required tools ({0} is missing), \
                    please check your list and try again!'.format(missing_tools)
             self.success = False
@@ -337,19 +305,6 @@ class Environment:
 
         # now check to see if they're already set in the environment
         missing_dependencies = set([dep for dep in ext_dependencies if not os.getenv(dep)])
-        # missing_dependencies = []
-        # for dep in ext_dependencies:
-        #     if not os.getenv(dep):
-        #         missing_dependencies.append(dep)
-        #
-        # missing_dependencies = set(missing_dependencies)
-        #
-        # if len(missing_dependencies) > 0:
-        #     missing_vars = str()
-        #     for missing_var in missing_dependencies:
-        #         if len(missing_vars) > 0:
-        #             missing_vars += ', '
-        #         missing_vars += missing_var
         if missing_dependencies:
             missing_vars = ', '.join(missing_dependencies)
             print 'Unable to resolve all of the required variables ({0} is missing), \
@@ -405,6 +360,7 @@ class Environment:
             if not set_environment:
                 return self.value
 
+            # TODO check if we need this repetition
             for env_name, env_value in os.environ.items():
                 os.environ[env_name] = os.path.expandvars(env_value)
             for env_name, env_value in os.environ.items():
