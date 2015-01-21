@@ -393,7 +393,7 @@ def list_available_tools():
 
 
 def call_process(arguments):
-    if ( platform.system().lower() == 'windows' ):
+    if platform.system().lower() == 'windows':
         subprocess.call(arguments, shell=True)
     else:
         subprocess.call(arguments)
@@ -414,7 +414,7 @@ Example:
     python ecosystem.py -t maya2014,vray3.05,yeti1.3.0 -r maya
                                      ''')
     parser.add_argument('-t', '--tools', type=str, default=None,
-                        help='spcify a list of tools required seperated by commas')
+                        help='specify a list of tools required separated by commas')
     parser.add_argument('-l', '--listtools', action='store_true',
                         help='list the available tools')
     parser.add_argument('-b', '--build', action='store_true',
@@ -463,12 +463,12 @@ Example:
                         except IOError:
                             print "Cache doesn't exist..."
 
-                    call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', make_target, '..'])
+                    call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', MAKE_TARGET, '..'])
 
                 if deploy:
-                    make_command.append("package")
+                    MAKE_COMMAND.append("package")
 
-                call_process(make_command)
+                call_process(MAKE_COMMAND)
 
         elif run_application:
             env = Environment(tools)
