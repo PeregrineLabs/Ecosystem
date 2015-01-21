@@ -391,12 +391,14 @@ def list_available_tools():
     for tool in tool_list:
         print tool
 
+
 def call_process(arguments):
     if ( platform.system().lower() == 'windows' ):
         subprocess.call(arguments, shell=True)
-	else:
-		subprocess.call(arguments)
-		
+    else:
+        subprocess.call(arguments)
+
+
 def main(argv=None):
     if argv is None:
         arg = sys.argv[1:]
