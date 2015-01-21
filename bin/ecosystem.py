@@ -433,7 +433,7 @@ Example:
     args = parser.parse_args(argv)
 
     if args.listtools:
-        listAvailableTools()
+        list_available_tools()
         return 0
 
     tools = args.tools.split(',') if args.tools is not None else []
@@ -452,7 +452,7 @@ Example:
         if run_build:
             env = Environment(tools)
             if env.success:
-                env.getEnv(os.environ)
+                env.get_env(os.environ)
                 build_type = os.getenv('PG_BUILD_TYPE')
 
                 if not quick_build:
@@ -473,13 +473,13 @@ Example:
         elif run_application:
             env = Environment(tools)
             if env.success:
-                env.getEnv(os.environ)
+                env.get_env(os.environ)
                 call_process([run_application])
 
         elif set_environment:
             env = Environment(tools)
             if env.success:
-                output = env.getEnv()
+                output = env.get_env()
                 if output:
                     print output
         return 0
