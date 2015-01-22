@@ -163,6 +163,7 @@ class Variable:
         self.values = []
         self.dependencies = []
         self.strict = False
+        self.absolute = False
 
     def append_value(self, value):
         """Sets and/or appends a value to the Variable"""
@@ -172,7 +173,7 @@ class Variable:
             if 'common' in value:
                 platform_value = value['common']
                 
-            if (platform.system().lower() in value):
+            if platform.system().lower() in value:
                 platform_value = value[platform.system().lower()]
             
         else:
@@ -413,7 +414,7 @@ def call_process(arguments):
 
 def main(argv=None):
     if argv is None:
-        arg = sys.argv[1:]
+        argv = sys.argv[1:]
 
     # parse the (command line) arguments; python 2.7+ (or download argparse)
     import argparse
