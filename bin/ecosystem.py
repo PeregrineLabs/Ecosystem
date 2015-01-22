@@ -170,15 +170,27 @@ class Variable:
         platform_value = None
         if type(value) == dict:
             if platform.system().lower() in value:
+        if (type(value) == dict):
+            if ('common' in value):
+                platform_value = value['common']
+                
+            if (platform.system().lower() in value):
                 platform_value = value[platform.system().lower()]
+            
         else:
             platform_value = value
-
-        if type(value) == dict:
-            if 'strict' in value:
+            
+        if(type(value) == dict):
+            if ('strict' in value):
                 self.strict = value['strict']
-
-        if platform_value:
+            elif ('abs' in value):
+                if(type(value['abs']) == list):
+                    if(platform.system().lower() in value['abs']):
+                        self.absolute = True
+                else:
+                    self.absolute = value['abs']
+            
+        if (platform_value):
             if platform_value not in self.values:
                 self.values.append(platform_value)
                 for var_dependency in self.check_for_dependencies(platform_value):
@@ -208,6 +220,8 @@ class Variable:
         for var_value in self.values:
             if count != 0:
                 value = value + os.pathsep
+            if self.absolute:
+                var_value = os.path.abspath(var_value)
             value = value + var_value
             count += 1
         return value
