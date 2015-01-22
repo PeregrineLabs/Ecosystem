@@ -169,9 +169,7 @@ class Variable:
         # check to see if the value is platform dependent
         platform_value = None
         if type(value) == dict:
-            if platform.system().lower() in value:
-        if (type(value) == dict):
-            if ('common' in value):
+            if 'common' in value:
                 platform_value = value['common']
                 
             if (platform.system().lower() in value):
@@ -180,17 +178,17 @@ class Variable:
         else:
             platform_value = value
             
-        if(type(value) == dict):
-            if ('strict' in value):
+        if type(value) == dict:
+            if 'strict' in value:
                 self.strict = value['strict']
-            elif ('abs' in value):
-                if(type(value['abs']) == list):
-                    if(platform.system().lower() in value['abs']):
+            elif 'abs' in value:
+                if type(value['abs']) == list:
+                    if platform.system().lower() in value['abs']:
                         self.absolute = True
                 else:
                     self.absolute = value['abs']
             
-        if (platform_value):
+        if platform_value:
             if platform_value not in self.values:
                 self.values.append(platform_value)
                 for var_dependency in self.check_for_dependencies(platform_value):
