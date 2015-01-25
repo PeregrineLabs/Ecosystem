@@ -294,7 +294,7 @@ class Environment:
                     if new_tool.requirements:
                         for required_tool in new_tool.requirements:
                             if required_tool not in self.tools:
-                                self.wants = self.wants or set(list(required_tool))
+                                self.wants = self.wants | set(list(required_tool))
 
         if len(self.wants) != 0:
             missing_tools = ', '.join(self.wants)
