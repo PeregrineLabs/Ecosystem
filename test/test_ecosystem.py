@@ -170,3 +170,7 @@ class ListAvailableToolsTester(unittest.TestCase):
 #
 #     def tearDown(self):
 #         os.environ = self.environ
+
+
+if __name__ == '__main__':
+    unittest.main()
