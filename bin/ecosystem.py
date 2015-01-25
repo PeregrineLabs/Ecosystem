@@ -260,11 +260,11 @@ class Tool:
                 return True
         return False
     
-    """Checks to see if this tool defines the given variables"""
-    def definesVariable(self, var):
-        if var in self.variables:
-            return True
-        return False
+    # """Checks to see if this tool defines the given variables"""
+    # def definesVariable(self, var):
+    #     if var in self.variables:
+    #         return True
+    #     return False
 
 class Environment:
     """Once initialized this will represent the environment defined by the wanted tools"""
@@ -417,10 +417,8 @@ def listAvailableTools():
             if tool_name not in tool_list:
                 tool_list.append(tool_name)
                     
-    tool_list.sort()
+    return sorted(tool_list)
     
-    for tool in tool_list:
-        print tool
 
 def call_process(arguments):
 	if ( platform.system().lower() == 'windows' ):
@@ -462,7 +460,8 @@ Example:
     args = parser.parse_args(argv)
 
     if args.listtools:
-        listAvailableTools()
+        for tool in listAvailableTools():
+            print tool
         return 0
 
     tools = args.tools.split(',') if args.tools is not None else []
