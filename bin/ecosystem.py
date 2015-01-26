@@ -261,6 +261,19 @@ class Tool:
                         if name not in env.variables:
                             env.variables[name] = Variable(name)
                         env.variables[name].append_value(value)
+                
+    """Check to see if the tool is supported on the current platform"""
+    def plaformSupported(self):
+        if (self.platforms):
+            if (platform.system().lower() in self.platforms):
+                return True
+        return False
+    
+    # """Checks to see if this tool defines the given variables"""
+    # def definesVariable(self, var):
+    #     if var in self.variables:
+    #         return True
+    #     return False
 
 
 class Environment:
@@ -398,11 +411,8 @@ def list_available_tools():
                 tool_name = tool_name + new_tool.version
             if tool_name not in tool_list:
                 tool_list.append(tool_name)
-
-    tool_list.sort()
-
-    for tool in tool_list:
-        print tool
+                    
+    return sorted(tool_list)
 
 
 def call_process(arguments):
@@ -446,7 +456,8 @@ Example:
     args = parser.parse_args(argv)
 
     if args.listtools:
-        list_available_tools()
+        for tool in list_available_tools():
+            print tool
         return 0
 
     tools = args.tools.split(',') if args.tools is not None else []
