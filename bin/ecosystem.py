@@ -153,6 +153,35 @@ if platform.system().lower() == 'windows':
     MAKE_TARGET = 'NMake Makefiles'
 
 
+class ValueWrapper:
+    """Wraps a value to be held by a Variable"""
+
+    def __init__(self,
+                 value=None):
+        self._value = value
+
+    @property
+    def _current_os(self):
+        return platform.system().lower()
+
+    @property
+    def value(self):
+        if isinstance(self._value, dict):
+            return self._value.get(self._current_os, None) or self._value.get('common', None)
+        return self._value
+
+    @property
+    def strict_value(self):
+        return self._value.get('strict', False) if isinstance(self._value, dict) else False
+
+    @property
+    def absolute_value(self):
+        if isinstance(self._value, dict):
+            abs_value = self._value.get('abs', False)
+            return (self._current_os in self._value['abs']) if isinstance(abs_value, list) else abs_value
+        return False
+
+
 class Variable:
     """Defines a variable required by a tool"""
 
@@ -165,48 +194,29 @@ class Variable:
         self.strict = False
         self.absolute = False
 
+    def list_dependencies(self, value):
+        """Checks the value to see if it has any dependency on other Variables, returning them in a list"""
+        try:
+            self.dependency_re = self.dependency_re or re.compile(r"\${\w*}")
+            matched = self.dependency_re.findall(value)
+            if matched:
+                dependencies = [match[2:-1] for match in matched if match[2:-1] != self.name]
+                return list(set(dependencies))
+        except:
+            pass
+        return []
+
     def append_value(self, value):
         """Sets and/or appends a value to the Variable"""
-        # check to see if the value is platform dependent
-        platform_value = None
-        if type(value) == dict:
-            if 'common' in value:
-                platform_value = value['common']
-                
-            if platform.system().lower() in value:
-                platform_value = value[platform.system().lower()]
-            
-        else:
-            platform_value = value
-            
-        if type(value) == dict:
-            if 'strict' in value:
-                self.strict = value['strict']
-            elif 'abs' in value:
-                if type(value['abs']) == list:
-                    if platform.system().lower() in value['abs']:
-                        self.absolute = True
-                else:
-                    self.absolute = value['abs']
-            
-        if platform_value:
-            if platform_value not in self.values:
-                self.values.append(platform_value)
-                for var_dependency in self.check_for_dependencies(platform_value):
-                    if var_dependency not in self.dependencies:
-                        self.dependencies.append(var_dependency)
-
-    def check_for_dependencies(self, value):
-        """Checks the value to see if it has any dependency on other Variables, returning them in a list"""
-        if not self.dependency_re:
-            self.dependency_re = re.compile(r"\${\w*}")
-
-        matched = self.dependency_re.findall(value)
-        if matched:
-            dependencies = [match[2:-1] for match in matched if match[2:-1] != self.name]
-            return list(set(dependencies))
-        else:
-            return []
+        value_wrapper = ValueWrapper(value)
+        self.strict = value_wrapper.strict_value
+        if self.strict is False:
+            self.absolute = value_wrapper.absolute_value
+        if value_wrapper.value not in self.values and value_wrapper.value is not None:
+            self.values += [value_wrapper.value]
+            for var_dependency in self.list_dependencies(value_wrapper.value):
+                if not var_dependency in self.dependencies:
+                    self.dependencies.append(var_dependency)
 
     def has_value(self):
         if len(self.values) > 0:
