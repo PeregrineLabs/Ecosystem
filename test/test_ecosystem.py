@@ -4,75 +4,75 @@ import sys
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.join(ECO_ROOT, 'bin'))
-from ecosystem import Variable, Tool, Environment, listAvailableTools, main
+from ecosystem import Variable, Tool, Environment, list_available_tools, main
 
 
 class VariableTester(unittest.TestCase):
 
-    def _test_appendValue(self, variable, value,
+    def _test_append_value(self, variable, value,
                           dependents=None,
                           values=None,
                           dependencies=None,
                           strict=False,
                           absolute=False):
         variable_obj = Variable(variable)
-        variable_obj.appendValue(value)
+        variable_obj.append_value(value)
         self.assertEqual(variable_obj.dependents, dependents or [])
         self.assertEqual(variable_obj.values, values or [])
         self.assertEqual(variable_obj.dependencies, dependencies or [])
         self.assertEqual(variable_obj.strict, strict)
         self.assertEqual(variable_obj.absolute, absolute)
 
-    def test_appendValue_string(self):
-        self._test_appendValue('MAYA_VERSION', '2015', values=['2015'])
+    def test_append_value_string(self):
+        self._test_append_value('MAYA_VERSION', '2015', values=['2015'])
 
-    def test_appendValue_dict(self):
+    def test_append_value_dict(self):
         dict_value = {'darwin': '/some/path',
 					  'linux': '/some/path',
 					  'windows': '/some/path', }
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=['/some/path'])
+        self._test_append_value('MAYA_LOCATION', dict_value, values=['/some/path'])
         dict_value = {'foo': '/other/path', }
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=[])
+        self._test_append_value('MAYA_LOCATION', dict_value, values=[])
 
-    def test_appendValue_dependency(self):
-        self._test_appendValue('PATH', '/some/path/${MAYA_VERSION}',
+    def test_append_value_dependency(self):
+        self._test_append_value('PATH', '/some/path/${MAYA_VERSION}',
                                values=['/some/path/${MAYA_VERSION}'],
                                dependencies=['MAYA_VERSION'])
 
-    def test_appendValue_common(self):
+    def test_append_value_common(self):
         dict_value = {'common': '/some/path'}
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=['/some/path'])
+        self._test_append_value('MAYA_LOCATION', dict_value, values=['/some/path'])
         dict_value = {'common': '/some/path',
                       'darwin': '/other/path',
                       'linux': '/other/path',
                       'windows': '/other/path'}
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=['/other/path'])
+        self._test_append_value('MAYA_LOCATION', dict_value, values=['/other/path'])
 
-    def test_appendValue_abs(self):
+    def test_append_value_abs(self):
         dict_value = {'common': '/some/path', 'abs': ['windows', 'linux', 'darwin']}
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=['/some/path'], absolute=True)
+        self._test_append_value('MAYA_LOCATION', dict_value, values=['/some/path'], absolute=True)
 
-    def test_appendValue_strict(self):
+    def test_append_value_strict(self):
         dict_value = {'common': '/some/path', 'strict': True}
-        self._test_appendValue('MAYA_LOCATION', dict_value, values=['/some/path'],
+        self._test_append_value('MAYA_LOCATION', dict_value, values=['/some/path'],
                                strict=True)
 
-    def test_checkForDependencies(self):
+    def test_check_for_dependencies(self):
         self.variable_obj = Variable('MAYA_LOCATION')
         variable = '/some/path/${MAYA_VERSION}'
-        self.assertEqual(self.variable_obj.checkForDependencies(variable), ['MAYA_VERSION'])
-        self.assertEqual(self.variable_obj.checkForDependencies('/some/path'), None)
+        self.assertEqual(self.variable_obj.check_for_dependencies(variable), ['MAYA_VERSION'])
+        self.assertEqual(self.variable_obj.check_for_dependencies('/some/path'), [])
 
-    def test_hasValue(self):
+    def test_has_value(self):
         self.variable_obj = Variable('MAYA_LOCATION')
-        self.assertFalse(self.variable_obj.hasValue())
-        self.variable_obj.appendValue('/some/path')
-        self.assertTrue(self.variable_obj.hasValue())
+        self.assertFalse(self.variable_obj.has_value())
+        self.variable_obj.append_value('/some/path')
+        self.assertTrue(self.variable_obj.has_value())
 
-    def test_getEnv(self):
+    def test_get_env(self):
         self.variable_obj = Variable('MAYA_LOCATION')
-        self.variable_obj.appendValue('/some/path')
-        self.assertEqual(self.variable_obj.getEnv(), '/some/path')
+        self.variable_obj.append_value('/some/path')
+        self.assertEqual(self.variable_obj.get_env(), '/some/path')
 
 
 class ToolTester(unittest.TestCase):
@@ -103,18 +103,18 @@ class ToolTester(unittest.TestCase):
     def test_requirements(self):
         self.assertEqual(self.tool_obj.requirements, self.requirements)
 
-    def test_getVars(self):
+    def test_get_vars(self):
         class Foo():
             def __init__(self):
                 self.tools = {}
                 self.variables = {}
         foo_obj = Foo()
-        self.tool_obj.getVars(foo_obj)
+        self.tool_obj.get_vars(foo_obj)
         variable_list = ['DYLD_LIBRARY_PATH', 'PATH', 'MAYA_LOCATION', 'MAYA_VERSION']
         self.assertEqual(foo_obj.variables.keys(), variable_list)
 
-    def test_platformSupported(self):
-        self.assertTrue(self.tool_obj.plaformSupported(), True)
+    def test_platform_supported(self):
+        self.assertTrue(self.tool_obj.platform_supported, True)
 
     # def test_definesVariable(self):
     #     self.assertTrue(self.tool_obj.definesVariable('foo'), False)
@@ -132,7 +132,7 @@ class EnvironmentTester(unittest.TestCase):
     def tearDown(self):
         os.environ = self.environ
 
-    def test_getEnv(self):
+    def test_get_env(self):
         test_get_env = '''#Environment created via Ecosystem
 setenv MAYA_VERSION 2015
 setenv MAYA_LOCATION /Applications/Autodesk/maya${MAYA_VERSION}/Maya.app/Contents
@@ -142,7 +142,7 @@ setenv MAYA_MODULE_PATH ${YETI_ROOT}
 setenv DYLD_LIBRARY_PATH ${MAYA_LOCATION}/MacOS
 setenv PATH ${MAYA_LOCATION}/bin:${YETI_ROOT}/bin:${PATH}
 '''
-        self.assertEqual(self.environment_obj.getEnv(), test_get_env)
+        self.assertEqual(self.environment_obj.get_env(), test_get_env)
 
 
 class ListAvailableToolsTester(unittest.TestCase):
@@ -156,8 +156,8 @@ class ListAvailableToolsTester(unittest.TestCase):
     def tearDown(self):
         os.environ = self.environ
 
-    def test_listAvailableTools(self):
-        available_tools = listAvailableTools()
+    def test_list_available_tools(self):
+        available_tools = list_available_tools()
         self.assertEqual(available_tools[-1], self.last_tool)
         self.assertEqual(len(available_tools), self.no_tools)
 
