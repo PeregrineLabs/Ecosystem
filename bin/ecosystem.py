@@ -243,7 +243,7 @@ class Tool:
             self.requirements = self.in_dictionary['requires']
 
     @property
-    def plaform_supported(self):
+    def platform_supported(self):
         """Check to see if the tool is supported on the current platform"""
         return platform.system().lower() in self.platforms if self.platforms else False
 
@@ -294,7 +294,7 @@ class Environment:
         # reads all of the found .env files, parses the tool name and version and checked that against our want list
         possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
         for new_tool in possible_tools:
-            if new_tool.plaform_supported:
+            if new_tool.platform_supported:
                 tool_name = new_tool.tool + new_tool.version if new_tool.version != '' else new_tool.tool
                 if tool_name in self.wants:
                     if new_tool.tool in self.tools:
@@ -405,7 +405,7 @@ def list_available_tools():
     possible_tools = glob.glob(environment_files)
     for file_name in possible_tools:
         new_tool = Tool(file_name)
-        if new_tool.plaform_supported:
+        if new_tool.platform_supported:
             tool_name = new_tool.tool
             if new_tool.version != '':
                 tool_name = tool_name + new_tool.version
