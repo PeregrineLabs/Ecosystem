@@ -37,10 +37,7 @@
 import os
 import glob
 import re
-# import copy
-import getopt
 import sys
-import string
 import subprocess
 import platform
 
@@ -153,7 +150,7 @@ if platform.system().lower() == 'windows':
     MAKE_TARGET = 'NMake Makefiles'
 
 
-class ValueWrapper:
+class ValueWrapper(object):
     """Wraps a value to be held by a Variable"""
 
     def __init__(self,
@@ -182,7 +179,7 @@ class ValueWrapper:
         return False
 
 
-class Variable:
+class Variable(object):
     """Defines a variable required by a tool"""
 
     def __init__(self, name):
@@ -193,6 +190,10 @@ class Variable:
         self.dependencies = []
         self.strict = False
         self.absolute = False
+
+    @property
+    def env(self):
+        return os.pathsep.join(self.values)
 
     def list_dependencies(self, value):
         """Checks the value to see if it has any dependency on other Variables, returning them in a list"""
@@ -219,24 +220,11 @@ class Variable:
                     self.dependencies.append(var_dependency)
 
     def has_value(self):
-        if len(self.values) > 0:
-            return True
-        return False
-
-    def get_env(self):
-        value = ''
-        count = 0
-        for var_value in self.values:
-            if count != 0:
-                value = value + os.pathsep
-            if self.absolute:
-                var_value = os.path.abspath(var_value)
-            value = value + var_value
-            count += 1
-        return value
+        return self.values
 
 
-class Tool:
+
+class Tool(object):
     """Defines a tool - more specifically, a version of a tool"""
 
     def __init__(self, filename):
@@ -244,13 +232,21 @@ class Tool:
             with open(filename, 'r') as f:
                 self.in_dictionary = eval(f.read())
         except IOError:
+            self.in_dictionary = {}
             print 'Unable to find file {0} ...'.format(filename)
 
-        if self.in_dictionary:
-            self.tool = self.in_dictionary['tool']
-            self.version = self.in_dictionary['version']
-            self.platforms = self.in_dictionary['platforms']
-            self.requirements = self.in_dictionary['requires']
+        self.tool = self.in_dictionary.get('tool', None)
+        self.version = self.in_dictionary.get('version', None)
+        self.platforms = self.in_dictionary.get('platforms', None)
+        # self.requirements = self.in_dictionary.get('requires', None)
+
+    @property
+    def requirements(self):
+        return self.in_dictionary.get('requires', None)
+
+    @property
+    def tool_name(self):
+        return self.tool + (self.version or '')
 
     @property
     def platform_supported(self):
@@ -271,47 +267,66 @@ class Tool:
                         if name not in env.variables:
                             env.variables[name] = Variable(name)
                         env.variables[name].append_value(value)
-                
-    """Check to see if the tool is supported on the current platform"""
-    def plaformSupported(self):
-        if (self.platforms):
-            if (platform.system().lower() in self.platforms):
-                return True
-        return False
-    
-    # """Checks to see if this tool defines the given variables"""
-    # def definesVariable(self, var):
-    #     if var in self.variables:
-    #         return True
-    #     return False
 
 
-class Environment:
-    """Once initialized this will represent the environment defined by the wanted tools"""
-    def __init__(self, wants, environment_directory=None, force=False):
+class ToolWithContext(Tool):
+    """Defines a (version of a) tool in the context of all configured tools."""
+
+    def __init__(self, filename, env_dir=None):
+        super(ToolWithContext, self).__init__(filename)
+        env_dir = env_dir or os.getenv('ECO_ENV', '')
+        self.environment_files = os.path.join(env_dir, '*.env')
+
+    @property
+    def _tools(self):
+        """All tools which are configured, i.e. have an ENV."""
+        return [Tool(x) for x in glob.glob(self.environment_files) if Tool(x).platform_supported]
+
+    @property
+    def _reqs(self):
+        reqs = []
+        for tool in self._tools:
+            reqs.extend(tool.requirements)
+        return list(set(reqs))
+
+    def _has_name(self, name):
+        return name in [x.tool for x in self._tools]
+
+    def _has_tool_name(self, tool_name):
+        return tool_name in [x.tool_name for x in self._tools]
+
+    @property
+    def requirements(self):
+        """Requirements which are configured."""
+        return [x for x in self._reqs if self._has_name(x) or self._has_tool_name(x)]
+
+    @property
+    def missing(self):
+        """Requirements which are missing."""
+        return [x for x in self._reqs if not (self._has_name(x) or self._has_tool_name(x))]
+
+
+class Environment(object):
+    """Once initialized this will represent the environment defined by the wanted tools."""
+    def __init__(self, wants, env_dir=None, force=False):
         self.tools = {}
         self.variables = {}
         self.wants = set(wants)         # make sure the set has unique values
         self.success = True
         self.force = force
 
-        self.environment_files = '*.env'
-
-        environment_location = os.getenv('ECO_ENV')
-        if environment_location:
-            self.environment_files = environment_location + '/*.env'
+        env_dir = env_dir or os.getenv('ECO_ENV', '')
+        self.environment_files = os.path.join(env_dir, '*.env')
 
         # reads all of the found .env files, parses the tool name and version and checked that against our want list
         possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
         for new_tool in possible_tools:
-            if new_tool.platform_supported:
-                tool_name = new_tool.tool + new_tool.version if new_tool.version != '' else new_tool.tool
-                if tool_name in self.wants:
-                    if new_tool.tool in self.tools:
-                        print 'Duplicate tool specified: \
-                               {0} using {1}{2}'.format(new_tool.tool, new_tool.tool, new_tool.version)
-                    self.tools[new_tool.tool] = new_tool
-                    self.wants.remove(tool_name)
+            if new_tool.tool_name in self.wants:
+                if new_tool.tool in self.tools:
+                    print 'Duplicate tool specified: \
+                           {0} using {1}{2}'.format(new_tool.tool, new_tool.tool, new_tool.version)
+                self.tools[new_tool.tool] = new_tool
+                self.wants.remove(new_tool.tool_name)
                 if new_tool.tool in self.wants:
                     self.wants.remove(new_tool.tool)
                     if new_tool.requirements:
@@ -319,7 +334,7 @@ class Environment:
                             if required_tool not in self.tools:
                                 self.wants = self.wants | set(list(required_tool))
 
-        if len(self.wants) != 0:
+        if self.wants:
             missing_tools = ', '.join(self.wants)
             print 'Unable to resolve all of the required tools ({0} is missing), \
                    please check your list and try again!'.format(missing_tools)
@@ -348,81 +363,60 @@ class Environment:
             self.success = False
 
     def get_var(self, var):
-        if self.success:
+        if self.success and var is not None:
             if var.name not in self.defined_variables:
                 for dependency in var.dependencies:
-                    if dependency in self.variables:
-                        self.get_var(self.variables[dependency])
-                var_value = var.get_env()
-                self.value = self.value + 'setenv ' + var.name + ' ' + var_value
+                    self.get_var(self.variables.get(dependency, None))
+                self.value += 'setenv {0} {1}'.format(var.name, var.env)
                 if os.getenv(var.name):
                     if not self.force and not var.strict:
-                        if var_value == '':
-                            self.value = self.value + '${' + var.name + '}'
-                        else:
-                            self.value = self.value + os.pathsep + '${' + var.name + '}'
-                self.value = self.value + '\n'
+                        if var.env != '':
+                            self.value += os.pathsep
+                        self.value += '${%s}'%var.name
+                self.value += '\n'
                 self.defined_variables.append(var.name)
 
     def get_var_env(self, var):
-        if self.success:
+        if self.success and var is not None:
             if var.name not in self.defined_variables:
                 for dependency in var.dependencies:
-                    if dependency in self.variables:
-                        self.get_var_env(self.variables[dependency])
-                var_value = var.get_env()
+                    self.get_var_env(self.variables.get(dependency, None))
                 if var.name in os.environ:
                     if not self.force and not var.strict:
-                        if var_value == '':
-                            var_value = os.environ[var.name]
-                        else:
-                            var_value = var_value + os.pathsep + os.environ[var.name]
+                        if var.env != '':
+                            var.env += os.pathsep
+                        var.env += os.environ[var.name]
                 self.defined_variables.append(var.name)
-                os.environ[var.name] = var_value
+                os.environ[var.name] = var.env
 
-    def get_env(self, set_environment=False):
-        # combine all of the variable in all the tools based on a dependency list
+    def get_env(self):
+        """Combine all of the variables in all the tools based on a dependency list and return as string."""
         if self.success:
             self.defined_variables = []
             self.value = '#Environment created via Ecosystem\n'
-
             for var_name, variable in self.variables.items():
                 if self.variables[var_name].has_value():
-                    if not set_environment:
-                        self.get_var(variable)
-                    else:
-                        self.get_var_env(variable)
+                    self.get_var(variable)
+            return self.value
 
-            if not set_environment:
-                return self.value
-
-            # TODO check if we need this repetition
-            for env_name, env_value in os.environ.items():
-                os.environ[env_name] = os.path.expandvars(env_value)
-            for env_name, env_value in os.environ.items():
+    def set_env(self, environ=None):
+        """Combine all of the variables in all the tools based on a dependency list and use to set environment."""
+        if self.success:
+            environ = environ or os.environ
+            self.defined_variables = []
+            for var_name, variable in self.variables.items():
+                if self.variables[var_name].has_value():
+                    self.get_var_env(variable)
+            for env_name, env_value in environ.items():
                 os.environ[env_name] = os.path.expandvars(env_value)
 
 
 def list_available_tools():
-    environment_files = '*.env'
-
-    environment_location = os.getenv('ECO_ENV')
-    if environment_location:
-        environment_files = environment_location + '/*.env'
-
-    # reads all of the found .env files, parses the tool name and version and checked that against our wan list
-    tool_list = []
-    possible_tools = glob.glob(environment_files)
-    for file_name in possible_tools:
-        new_tool = Tool(file_name)
-        if new_tool.platform_supported:
-            tool_name = new_tool.tool
-            if new_tool.version != '':
-                tool_name = tool_name + new_tool.version
-            if tool_name not in tool_list:
-                tool_list.append(tool_name)
-                    
-    return sorted(tool_list)
+    """Reads all of the found .env files, parses the tool name and version creates a list."""
+    environment_files = os.path.join(os.getenv('ECO_ENV'), '*.env')
+    possible_tools = [Tool(file_name) for file_name in glob.glob(environment_files)]
+    tool_names = [new_tool.tool_name for new_tool in possible_tools if new_tool.platform_supported]
+    return sorted(list(set(tool_names)))
 
 
 def call_process(arguments):
@@ -486,7 +480,7 @@ Example:
         if run_build:
             env = Environment(tools)
             if env.success:
-                env.get_env(os.environ)
+                env.set_env(os.environ)
                 build_type = os.getenv('PG_BUILD_TYPE')
 
                 if not quick_build:
@@ -507,7 +501,7 @@ Example:
         elif run_application:
             env = Environment(tools)
             if env.success:
-                env.get_env(os.environ)
+                env.set_env(os.environ)
                 call_process([run_application])
 
         elif set_environment:
