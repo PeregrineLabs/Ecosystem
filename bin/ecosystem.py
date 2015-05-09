@@ -245,7 +245,7 @@ class Tool(object):
         return self.in_dictionary.get('requires', None)
 
     @property
-    def versioned_name(self):
+    def tool_plus_version(self):
         return self.tool + (self.version or '')
 
     @property
@@ -267,6 +267,21 @@ class Tool(object):
                         if name not in env.variables:
                             env.variables[name] = Variable(name)
                         env.variables[name].append_value(value)
+
+
+class Want(object):
+    """Defines a request, possibly with a specific version"""
+
+    def __init__(self,
+                 requirement):
+        self.requirement = requirement
+
+    def tool(self):
+        return re.findall(r".*?(?=[0-9])", self.requirement + '0')[0]
+
+    def version(self):
+        result = re.findall(r"(?=[0-9]).*", self.requirement)
+        return result[0] if result else ''
 
 
 # class ToolWithContext(Tool):
@@ -292,8 +307,8 @@ class Tool(object):
 #     def _has_name(self, name):
 #         return name in [x.tool for x in self._tools]
 #
-#     def _has_tool_name(self, versioned_name):
-#         return versioned_name in [x.versioned_name for x in self._tools]
+#     def _has_tool_name(self, tool_plus_version):
+#         return tool_plus_version in [x.tool_plus_version for x in self._tools]
 #
 #     @property
 #     def requirements(self):
@@ -320,45 +335,46 @@ class Environment(object):
         self.environment_files = os.path.join(env_dir, '*.env')
 
         # collect all requests
+        self.wants = {}
+        for want in [Want(x) for x in set(wants)]:
+            if want.version and (want.tool in self.wants):
+                # have maya2015 while 'maya' has been processed
+                print 'Duplicate tool specified: {0} using {1}'.format(want.tool, want.requirement)
+            if want.version or (want.tool not in self.wants):
+                # have maya2015, or 'maya' has not been processed
+                self.wants[want.tool] = want
+
         possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
+        possible_tools = dict([(tool.tool_plus_version, tool) for tool in possible_tools])
         requested_tools = []
+        missing_tools = []
+        for want in self.wants.values():
+            if want.requirement in possible_tools:
+                requested_tools.append(possible_tools[want.requirement])
+            else:
+                missing_tools.append(want.requirement)
 
-        # if maya2015. maya are wants, grab maya2015 and drop maya
-        # A in wants; A requires B
-        # B in wants; B requires A
-        for new_tool in possible_tools:
-            # if maya2015 is in self.wants
-            if new_tool.versioned_name in self.wants:
-                requested_tools.append(new_tool)
-                self.wants.remove(new_tool.versioned_name)
-                # ... but also maya is in self.wants
-                if new_tool.tool in self.wants:
-                    # we've dealt with maya
-                    self.wants.remove(new_tool.tool)
-                # A in requested tools; requires B
-                # B in requested tools; requires A
-                if new_tool.requirements:
-                    for required_tool in new_tool.requirements:
-                        # if B not explicitly requested; B not already a requirement; make it a want => A will pull in B
-                        # if A not explicitly requested; A not already a requirement; make it a want => B will fail to find A
-                        if required_tool not in [x.tool for x in requested_tools]:
-                            self.wants = self.wants | set(list(required_tool))
-        # NOTE possible_tools may still contain Tool instances representing maya, maya2015 (in that order)
-        for new_tool in requested_tools:
-            if new_tool.tool in self.tools:
-                print 'Duplicate tool specified: \
-                       {0} using {1}'.format(new_tool.tool, new_tool.versioned_name)
-            # ... but this means we'll always end up using maya2015
-            self.tools[new_tool.tool] = new_tool
-
-        if self.wants:
-            missing_tools = ', '.join(self.wants)
-            print 'Unable to resolve all of the requested tools ({0} is missing), \
-                   please check your list and try again!'.format(missing_tools)
+        if missing_tools:
+            missing_tools = ', '.join(missing_tools)
+            print 'Unable to resolve all of the requested tools ({0} is missing), ' \
+                  'please check your list and try again!'.format(missing_tools)
             self.success = False
 
-        # ... determine all the requirements from the requests
-        # ... and make sure that the requests cover all requirement
+        # ... determine all the requirements from the requests and make sure that the requests cover all requirement
+        required_tools = []
+        for requested_tool in requested_tools:
+            required_tools.extend(requested_tool.requirements)
+        required_tools = list(set(required_tools))
+        requested_tool_names = [x.tool for x in requested_tools]
+        missing_tools = [required_tool for required_tool in required_tools if required_tool not in requested_tool_names]
+
+        if missing_tools:
+            missing_tools = ', '.join(missing_tools)
+            print 'Unable to resolve all of the requirements ({0} is missing), ' \
+                  'please check your list and try again!'.format(missing_tools)
+            self.success = False
+
+        self.tools = dict([(new_tool.tool, new_tool) for new_tool in requested_tools])
 
         for tool_name, tool in self.tools.items():
             tool.get_vars(self)
@@ -435,7 +451,7 @@ def list_available_tools():
     """Reads all of the found .env files, parses the tool name and version creates a list."""
     environment_files = os.path.join(os.getenv('ECO_ENV'), '*.env')
     possible_tools = [Tool(file_name) for file_name in glob.glob(environment_files)]
-    tool_names = [new_tool.versioned_name for new_tool in possible_tools if new_tool.platform_supported]
+    tool_names = [new_tool.tool_plus_version for new_tool in possible_tools if new_tool.platform_supported]
     return sorted(list(set(tool_names)))
 
 
