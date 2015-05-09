@@ -4,7 +4,7 @@ import sys
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.join(ECO_ROOT, 'bin'))
-from ecosystem import ValueWrapper, Variable, Tool, ToolWithContext, Environment, list_available_tools, main
+from ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools, main
 
 
 class ValueWrapperTester(unittest.TestCase):
@@ -171,38 +171,38 @@ class ToolTester(unittest.TestCase):
     #     self.assertTrue(self.tool_obj.definesVariable('foo'), False)
 
 
-class ToolWithContextTester(unittest.TestCase):
-
-    def setUp(self):
-        self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-        self.env_file = 'maya_2015.env'
-        self.env_dir = os.path.join(ECO_ROOT, 'env')
-        self.filename = os.path.join(self.env_dir, self.env_file)
-        self.toolwithcontext_obj = ToolWithContext(self.filename, self.env_dir)
-        self.last_tool = 'yeti1.3.8'
-        self.no_tools = 65
-
-    def tearDown(self):
-        os.environ = self.environ
-
-    def test_requirements(self):
-        self.assertEqual(self.toolwithcontext_obj.requirements, ['maya', 'arnold'])
-
-    def test_missing(self):
-        here = os.path.dirname(os.path.normpath(__file__))
-        os.environ['ECO_ENV'] = os.path.join(here, 'test_env_missing')
-        env_dir = os.path.join(here, 'test_env_missing')
-        filename = os.path.join(env_dir, 'yeti_1_3_16.env')
-        self.toolset_obj = ToolWithContext(filename, env_dir)
-        self.assertEqual(self.toolset_obj.missing, ['maya'])
+# class ToolWithContextTester(unittest.TestCase):
+#
+#     def setUp(self):
+#         self.environ = os.environ.copy()
+#         os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
+#         self.env_file = 'maya_2015.env'
+#         self.env_dir = os.path.join(ECO_ROOT, 'env')
+#         self.filename = os.path.join(self.env_dir, self.env_file)
+#         self.toolwithcontext_obj = ToolWithContext(self.filename, self.env_dir)
+#         self.last_tool = 'yeti1.3.8'
+#         self.no_tools = 65
+#
+#     def tearDown(self):
+#         os.environ = self.environ
+#
+#     def test_requirements(self):
+#         self.assertEqual(self.toolwithcontext_obj.requirements, ['maya', 'arnold'])
+#
+#     def test_missing(self):
+#         here = os.path.dirname(os.path.normpath(__file__))
+#         os.environ['ECO_ENV'] = os.path.join(here, 'test_env_missing')
+#         env_dir = os.path.join(here, 'test_env_missing')
+#         filename = os.path.join(env_dir, 'yeti_1_3_16.env')
+#         self.toolset_obj = ToolWithContext(filename, env_dir)
+#         self.assertEqual(self.toolset_obj.missing, ['maya'])
 
 
 class EnvironmentTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
         os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'pg_sw_base')
         self.tools = ['maya2015', 'yeti1.3.16']
         self.environment_obj = Environment(self.tools)
@@ -227,9 +227,9 @@ class ListAvailableToolsTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-        self.last_tool = 'yeti1.3.8'
-        self.no_tools = 65
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
+        self.last_tool = 'yeti1.3.16'
+        self.no_tools = 2
 
     def tearDown(self):
         os.environ = self.environ
