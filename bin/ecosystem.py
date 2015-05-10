@@ -287,43 +287,6 @@ class Want(object):
         return result[0] if result else ''
 
 
-# class ToolWithContext(Tool):
-#     """Defines a (version of a) tool in the context of all configured tools."""
-#
-#     def __init__(self, filename, env_dir=None):
-#         super(ToolWithContext, self).__init__(filename)
-#         env_dir = env_dir or os.getenv('ECO_ENV', '')
-#         self.environment_files = os.path.join(env_dir, '*.env')
-#
-#     @property
-#     def _tools(self):
-#         """All tools which are configured, i.e. have an ENV."""
-#         return [Tool(x) for x in glob.glob(self.environment_files) if Tool(x).platform_supported]
-#
-#     @property
-#     def _reqs(self):
-#         reqs = []
-#         for tool in self._tools:
-#             reqs.extend(tool.requirements)
-#         return list(set(reqs))
-#
-#     def _has_name(self, name):
-#         return name in [x.tool for x in self._tools]
-#
-#     def _has_tool_name(self, tool_plus_version):
-#         return tool_plus_version in [x.tool_plus_version for x in self._tools]
-#
-#     @property
-#     def requirements(self):
-#         """Requirements which are configured."""
-#         return [x for x in self._reqs if self._has_name(x) or self._has_tool_name(x)]
-#
-#     @property
-#     def missing(self):
-#         """Requirements which are missing."""
-#         return [x for x in self._reqs if not (self._has_name(x) or self._has_tool_name(x))]
-
-
 class Environment(object):
     """Once initialized this will represent the environment defined by the wanted tools."""
 

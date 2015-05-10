@@ -171,33 +171,6 @@ class ToolTester(unittest.TestCase):
     #     self.assertTrue(self.tool_obj.definesVariable('foo'), False)
 
 
-# class ToolWithContextTester(unittest.TestCase):
-#
-#     def setUp(self):
-#         self.environ = os.environ.copy()
-#         os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-#         self.env_file = 'maya_2015.env'
-#         self.env_dir = os.path.join(ECO_ROOT, 'env')
-#         self.filename = os.path.join(self.env_dir, self.env_file)
-#         self.toolwithcontext_obj = ToolWithContext(self.filename, self.env_dir)
-#         self.last_tool = 'yeti1.3.8'
-#         self.no_tools = 65
-#
-#     def tearDown(self):
-#         os.environ = self.environ
-#
-#     def test_requirements(self):
-#         self.assertEqual(self.toolwithcontext_obj.requirements, ['maya', 'arnold'])
-#
-#     def test_missing(self):
-#         here = os.path.dirname(os.path.normpath(__file__))
-#         os.environ['ECO_ENV'] = os.path.join(here, 'test_env_missing')
-#         env_dir = os.path.join(here, 'test_env_missing')
-#         filename = os.path.join(env_dir, 'yeti_1_3_16.env')
-#         self.toolset_obj = ToolWithContext(filename, env_dir)
-#         self.assertEqual(self.toolset_obj.missing, ['maya'])
-
-
 class EnvironmentTester(unittest.TestCase):
 
     def setUp(self):
@@ -209,6 +182,35 @@ class EnvironmentTester(unittest.TestCase):
 
     def tearDown(self):
         os.environ = self.environ
+
+    def test_wants(self):
+        self.assertEqual(sorted(self.environment_obj.wants.keys()), ['maya', 'yeti'])
+
+    def test_defined_tools(self):
+        self.assertEqual(sorted(self.environment_obj.define_tools.keys()), ['maya2015', 'yeti1.3.16'])
+
+    def test_requested_tools(self):
+        self.assertEqual(sorted([x.tool for x in self.environment_obj.requested_tools]), ['maya', 'yeti'])
+
+    def test_missing_tools(self):
+        self.tools += ['foo0.0.1']
+        self.environment_obj = Environment(self.tools)
+        self.assertEqual(self.environment_obj.missing_tools, ['foo0.0.1'])
+
+    def test_required_tools(self):
+        self.assertEqual(self.environment_obj.required_tools, ['maya'])
+
+    def test_missing_requirements(self):
+        self.tools = ['yeti1.3.16']
+        self.environment_obj = Environment(self.tools)
+        self.assertEqual(self.environment_obj.missing_requirements, ['maya'])
+
+    def test_ext_dependencies(self):
+        self.assertEqual(self.environment_obj.ext_dependencies, ['PG_SW_BASE'])
+
+    def test_missing_dependencies(self):
+        del os.environ['PG_SW_BASE']
+        self.assertEqual(self.environment_obj.missing_dependencies, set(['PG_SW_BASE']))
 
     def test_get_env(self):
         test_get_env = '''#Environment created via Ecosystem
