@@ -253,6 +253,7 @@ class Tool(object):
         """Check to see if the tool is supported on the current platform"""
         return platform.system().lower() in self.platforms if self.platforms else False
 
+    # TODO: move this to environment?
     def get_vars(self, env):
         for name, value in self.in_dictionary['environment'].items():
             if name not in env.variables:
@@ -276,9 +277,11 @@ class Want(object):
                  requirement):
         self.requirement = requirement
 
+    @property
     def tool(self):
         return re.findall(r".*?(?=[0-9])", self.requirement + '0')[0]
 
+    @property
     def version(self):
         result = re.findall(r"(?=[0-9]).*", self.requirement)
         return result[0] if result else ''
@@ -325,78 +328,99 @@ class Environment(object):
     """Once initialized this will represent the environment defined by the wanted tools."""
 
     def __init__(self, wants, env_dir=None, force=False):
-        self.wants = set(wants)         # make sure the set has unique values
+        self._wants = wants
         env_dir = env_dir or os.getenv('ECO_ENV', '')
         self.force = force
 
-        self.tools = {}
+        # self.tools = {}
         self.variables = {}
         self.success = True
         self.environment_files = os.path.join(env_dir, '*.env')
 
-        # collect all requests
-        self.wants = {}
-        for want in [Want(x) for x in set(wants)]:
-            if want.version and (want.tool in self.wants):
-                # have maya2015 while 'maya' has been processed
-                print 'Duplicate tool specified: {0} using {1}'.format(want.tool, want.requirement)
-            if want.version or (want.tool not in self.wants):
-                # have maya2015, or 'maya' has not been processed
-                self.wants[want.tool] = want
-
-        possible_tools = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
-        possible_tools = dict([(tool.tool_plus_version, tool) for tool in possible_tools])
-        requested_tools = []
-        missing_tools = []
-        for want in self.wants.values():
-            if want.requirement in possible_tools:
-                requested_tools.append(possible_tools[want.requirement])
-            else:
-                missing_tools.append(want.requirement)
-
+        missing_tools = self.missing_tools
         if missing_tools:
             missing_tools = ', '.join(missing_tools)
             print 'Unable to resolve all of the requested tools ({0} is missing), ' \
                   'please check your list and try again!'.format(missing_tools)
             self.success = False
 
-        # ... determine all the requirements from the requests and make sure that the requests cover all requirement
-        required_tools = []
-        for requested_tool in requested_tools:
-            required_tools.extend(requested_tool.requirements)
-        required_tools = list(set(required_tools))
-        requested_tool_names = [x.tool for x in requested_tools]
-        missing_tools = [required_tool for required_tool in required_tools if required_tool not in requested_tool_names]
-
-        if missing_tools:
-            missing_tools = ', '.join(missing_tools)
+        missing_requirements = self.missing_requirements
+        if missing_requirements:
+            missing_requirements = ', '.join(missing_requirements)
             print 'Unable to resolve all of the requirements ({0} is missing), ' \
-                  'please check your list and try again!'.format(missing_tools)
+                  'please check your list and try again!'.format(missing_requirements)
             self.success = False
-
-        self.tools = dict([(new_tool.tool, new_tool) for new_tool in requested_tools])
 
         for tool_name, tool in self.tools.items():
             tool.get_vars(self)
 
-        # check and see if any of the variables dependencies are defined locally to the tool or are considered external
-        ext_dependencies = []
-        for name, var in self.variables.items():
-            if var.dependencies:
-                for dep in var.dependencies:
-                    if dep not in self.variables:
-                        if dep not in ext_dependencies:
-                            ext_dependencies.append(dep)
-                    else:
-                        self.variables[dep].dependents.append(name)
-
-        # now check to see if they're already set in the environment
-        missing_dependencies = set([dep for dep in ext_dependencies if not os.getenv(dep)])
+        missing_dependencies = self.missing_dependencies
         if missing_dependencies:
             missing_vars = ', '.join(missing_dependencies)
             print 'Unable to resolve all of the required variables ({0} is missing), \
                        please check your list and try again!'.format(missing_vars)
             self.success = False
+
+    @property
+    def wants(self):
+        wants_dict = {}
+        for want in [Want(x) for x in set(self._wants)]:
+            if want.version and (want.tool in wants_dict):
+                # have maya2015 while 'maya' has been processed
+                print 'Duplicate tool specified: {0} using {1}'.format(want.tool, want.requirement)
+            if want.version or (want.tool not in wants_dict):
+                # have maya2015, or 'maya' has not been processed
+                wants_dict[want.tool] = want
+        return wants_dict
+
+    @property
+    def define_tools(self):
+        defined = [Tool(file_name) for file_name in glob.glob(self.environment_files)]
+        return dict([(tool.tool_plus_version, tool) for tool in defined])
+
+    @property
+    def requested_tools(self):
+        defined_tools = self.define_tools
+        return [defined_tools[want.requirement] for want in self.wants.values() if want.requirement in defined_tools]
+
+    @property
+    def missing_tools(self):
+        defined_tools = self.define_tools
+        return [want.requirement for want in self.wants.values() if want.requirement not in defined_tools]
+
+    @property
+    def required_tools(self):
+        required = []
+        for requested_tool in self.requested_tools:
+            required.extend(requested_tool.requirements)
+        return list(set(required))
+
+    @property
+    def missing_requirements(self):
+        requested_tool_names = [x.tool for x in self.requested_tools]
+        return [required_tool for required_tool in self.required_tools if required_tool not in requested_tool_names]
+
+    @property
+    def ext_dependencies(self):
+        # check and see if any of the variables dependencies are defined locally to the tool or are considered external
+        ext_dependency_list = []
+        for name, var in self.variables.items():
+            if var.dependencies:
+                for dep in var.dependencies:
+                    if dep not in self.variables:
+                        if dep not in ext_dependency_list:
+                            ext_dependency_list.append(dep)
+                    else:
+                        self.variables[dep].dependents.append(name)
+        return ext_dependency_list
+
+    @property
+    def missing_dependencies(self):
+        return set([dep for dep in self.ext_dependencies if not os.getenv(dep)])
+
+    @property
+    def tools(self):
+        return dict([(new_tool.tool, new_tool) for new_tool in self.requested_tools])
 
     def get_var(self, var):
         if self.success and var is not None:
