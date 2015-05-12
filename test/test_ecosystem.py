@@ -213,7 +213,19 @@ class EnvironmentTester(unittest.TestCase):
         self.assertEqual(self.environment_obj.missing_dependencies, set(['PG_SW_BASE']))
 
     def test_get_env(self):
-        test_get_env = '''#Environment created via Ecosystem
+        import platform
+        current_os = platform.system().lower()
+        if current_os == 'windows':
+            test_get_env = '''#Environment created via Ecosystem
+setenv MAYA_VERSION 2015
+setenv MAYA_LOCATION C:/Program Files/Autodesk/Maya${MAYA_VERSION}
+setenv YETI_VERSION 1.3.16
+setenv YETI_ROOT ${PG_SW_BASE}/peregrinelabs/Yeti-v${YETI_VERSION}_Maya${MAYA_VERSION}-windows64
+setenv MAYA_MODULE_PATH ${YETI_ROOT}
+setenv PATH ${MAYA_LOCATION}/bin;C:/Program Files/Common Files/Autodesk Shared/;C:/Program Files (x86)/Autodesk/Backburner/;${YETI_ROOT}/bin;${PATH}
+'''
+        elif current_os == 'darwin':
+            test_get_env = '''#Environment created via Ecosystem
 setenv MAYA_VERSION 2015
 setenv MAYA_LOCATION /Applications/Autodesk/maya${MAYA_VERSION}/Maya.app/Contents
 setenv YETI_VERSION 1.3.16
@@ -222,6 +234,8 @@ setenv MAYA_MODULE_PATH ${YETI_ROOT}
 setenv DYLD_LIBRARY_PATH ${MAYA_LOCATION}/MacOS
 setenv PATH ${MAYA_LOCATION}/bin:${YETI_ROOT}/bin:${PATH}
 '''
+        # elif current_os in ['linux', 'linux2']:
+        #     test_get_env = None
         self.assertEqual(self.environment_obj.get_env(), test_get_env)
 
 
