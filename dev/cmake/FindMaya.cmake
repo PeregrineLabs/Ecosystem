@@ -34,7 +34,6 @@ SET( MAYA_FOUND "NO" )
 
 FIND_PATH( MAYA_LOCATION include/maya/MLibrary.h
   "$ENV{MAYA_LOCATION}"
-  "$ENV{MAYA_LOCATION}/devkit/"
   "$ENV{MAYA_LOCATION}/../../devkit/"
   DOC "Root directory of Maya"
   )
