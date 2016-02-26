@@ -175,8 +175,8 @@ class EnvironmentTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
-        os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'pg_sw_base')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'tests', 'test_env')
+        os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'tests', 'pg_sw_base')
         self.tools = ['maya2015', 'yeti1.3.16']
         self.environment_obj = Environment(self.tools)
 
@@ -243,7 +243,7 @@ class ListAvailableToolsTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'tests', 'test_env')
         self.last_tool = 'yeti1.3.16'
         self.no_tools = 2
 
