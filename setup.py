@@ -6,9 +6,11 @@ data = {
     'name': 'Ecosystem',
     'author': 'Peregrine*Labs',
     'author_email': 'support@peregrinelabs.com',
-    'entry_points': [
-        "eco = ecosystem.ecosystem:main",
-    ],
+    'entry_points': {
+        "console_scripts": [
+            "eco = ecosystem.ecosystem:main",
+        ],
+    },
     'description': 'Ecosystem is a cross-platform environment management system',
     'license': resource_string(__name__, 'LICENSE'),
     'long_description': resource_string(__name__, 'README.md'),
