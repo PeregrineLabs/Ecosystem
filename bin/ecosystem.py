@@ -30,10 +30,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# TODO: have ECO set an environment variable with all the loaded tools
-# TODO: check environment varialbe for loaded tools
-# TODO: unloading tools
-
 import os
 import glob
 import re
