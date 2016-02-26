@@ -445,6 +445,42 @@ def call_process(arguments):
         subprocess.call(arguments)
 
 
+def ecosystem(tools, run_application, set_environment, force_rebuild, quick_build, run_build, deploy):
+    if run_build:
+        env = Environment(tools)
+        if env.success:
+            env.set_env(os.environ)
+            build_type = os.getenv('PG_BUILD_TYPE')
+
+            if not quick_build:
+                if force_rebuild:
+                    try:
+                        open('CMakeCache.txt')
+                        os.remove('CMakeCache.txt')
+                    except IOError:
+                        print "Cache doesn't exist..."
+
+                call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', MAKE_TARGET, '..'])
+
+            if deploy:
+                MAKE_COMMAND.append("package")
+
+            call_process(MAKE_COMMAND)
+
+    elif run_application:
+        env = Environment(tools)
+        if env.success:
+            env.set_env(os.environ)
+            call_process([run_application])
+
+    elif set_environment:
+        env = Environment(tools)
+        if env.success:
+            output = env.get_env()
+            if output:
+                print output
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
@@ -496,39 +532,7 @@ Example:
         quick_build = False
 
     try:
-        if run_build:
-            env = Environment(tools)
-            if env.success:
-                env.set_env(os.environ)
-                build_type = os.getenv('PG_BUILD_TYPE')
-
-                if not quick_build:
-                    if force_rebuild:
-                        try:
-                            open('CMakeCache.txt')
-                            os.remove('CMakeCache.txt')
-                        except IOError:
-                            print "Cache doesn't exist..."
-
-                    call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', MAKE_TARGET, '..'])
-
-                if deploy:
-                    MAKE_COMMAND.append("package")
-
-                call_process(MAKE_COMMAND)
-
-        elif run_application:
-            env = Environment(tools)
-            if env.success:
-                env.set_env(os.environ)
-                call_process([run_application])
-
-        elif set_environment:
-            env = Environment(tools)
-            if env.success:
-                output = env.get_env()
-                if output:
-                    print output
+        ecosystem(tools, run_application, set_environment, force_rebuild, quick_build, run_build, deploy)
         return 0
     except Exception, e:
         sys.stderr.write('ERROR: {0:s}'.format(str(e)))

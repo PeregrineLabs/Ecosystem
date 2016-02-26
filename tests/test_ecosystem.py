@@ -1,10 +1,8 @@
 import unittest
 import os
-import sys
+from ecosystem.ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(os.path.join(ECO_ROOT, 'bin'))
-from ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools, main
 
 
 class ValueWrapperTester(unittest.TestCase):
@@ -130,13 +128,13 @@ class ToolTester(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'tests', 'test_env')
         self.env_file = 'maya_2015.env'
         self.tool = 'maya'
         self.version = '2015'
         self.platforms = ['windows', 'linux', 'darwin']
         self.requirements = []
-        self.filename = os.path.join(ECO_ROOT, 'env', self.env_file)
+        self.filename = os.path.join(ECO_ROOT, 'tests', 'test_env', self.env_file)
         self.tool_obj = Tool(self.filename)
 
     def tearDown(self):
