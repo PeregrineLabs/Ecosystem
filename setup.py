@@ -8,7 +8,7 @@ data = {
     'author_email': 'support@peregrinelabs.com',
     'entry_points': {
         "console_scripts": [
-            "eco = ecosystem.ecosystem:main",
+            "eco = ecosystem.main:main",
         ],
     },
     'description': 'Ecosystem is a cross-platform environment management system',
