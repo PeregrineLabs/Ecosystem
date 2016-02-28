@@ -36,7 +36,7 @@ import subprocess
 import sys
 from environment import Tool, Environment
 
-from environment import MAKE_TARGET, MAKE_COMMAND
+from settings import MAKE_COMMAND, MAKE_TARGET
 
 
 def list_available_tools():

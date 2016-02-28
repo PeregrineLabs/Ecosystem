@@ -1,6 +1,7 @@
 import unittest
 import os
-from ecosystem.ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools
+from ecosystem.main import list_available_tools
+from ecosystem.environment import ValueWrapper, Variable, Tool, Environment
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
