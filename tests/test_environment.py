@@ -1,13 +1,11 @@
 import unittest
 import os
-import sys
+from ecosystem.environment import ValueWrapper, Variable, Tool, Environment
 
 ECO_ROOT = os.environ.get('ECO_ROOT') or os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(os.path.join(ECO_ROOT, 'bin'))
-from ecosystem import ValueWrapper, Variable, Tool, Environment, list_available_tools, main
 
 
-class ValueWrapperTester(unittest.TestCase):
+class TestValueWrapper(unittest.TestCase):
 
     # def setUp(self):
     #     self.value_wrapper_obj = ValueWrapper()
@@ -58,7 +56,7 @@ class ValueWrapperTester(unittest.TestCase):
         self.assertEqual(value_wrapper_obj.absolute_value, False)
 
 
-class VariableTester(unittest.TestCase):
+class TestVariable(unittest.TestCase):
 
     def _test_append_value(self, variable, value,
                            dependents=None,
@@ -126,17 +124,17 @@ class VariableTester(unittest.TestCase):
         self.assertEqual(self.variable_obj.env, '/some/path')
 
 
-class ToolTester(unittest.TestCase):
+class TestTool(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'tests', 'test_env')
         self.env_file = 'maya_2015.env'
         self.tool = 'maya'
         self.version = '2015'
         self.platforms = ['windows', 'linux', 'darwin']
         self.requirements = []
-        self.filename = os.path.join(ECO_ROOT, 'env', self.env_file)
+        self.filename = os.path.join(ECO_ROOT, 'tests', 'test_env', self.env_file)
         self.tool_obj = Tool(self.filename)
 
     def tearDown(self):
@@ -171,12 +169,12 @@ class ToolTester(unittest.TestCase):
     #     self.assertTrue(self.tool_obj.definesVariable('foo'), False)
 
 
-class EnvironmentTester(unittest.TestCase):
+class TestEnvironment(unittest.TestCase):
 
     def setUp(self):
         self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
-        os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'test', 'pg_sw_base')
+        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'tests', 'test_env')
+        os.environ['PG_SW_BASE'] = os.path.join(ECO_ROOT, 'tests', 'pg_sw_base')
         self.tools = ['maya2015', 'yeti1.3.16']
         self.environment_obj = Environment(self.tools)
 
@@ -237,33 +235,6 @@ setenv PATH ${MAYA_LOCATION}/bin:${YETI_ROOT}/bin:${PATH}
         # elif current_os in ['linux', 'linux2']:
         #     test_get_env = None
         self.assertEqual(self.environment_obj.get_env(), test_get_env)
-
-
-class ListAvailableToolsTester(unittest.TestCase):
-
-    def setUp(self):
-        self.environ = os.environ.copy()
-        os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'test', 'test_env')
-        self.last_tool = 'yeti1.3.16'
-        self.no_tools = 2
-
-    def tearDown(self):
-        os.environ = self.environ
-
-    def test_list_available_tools(self):
-        available_tools = list_available_tools()
-        self.assertEqual(available_tools[-1], self.last_tool)
-        self.assertEqual(len(available_tools), self.no_tools)
-
-
-# class MainTester(unittest.TestCase):
-#
-#     def setUp(self):
-#         self.environ = os.environ.copy()
-#         os.environ['ECO_ENV'] = os.path.join(ECO_ROOT, 'env')
-#
-#     def tearDown(self):
-#         os.environ = self.environ
 
 
 if __name__ == '__main__':
