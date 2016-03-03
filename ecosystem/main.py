@@ -43,6 +43,9 @@ _ON_WINDOWS = (platform.system().lower() == 'windows')
 
 def list_available_tools():
     """Reads all of the found .env files, parses the tool name and version creates a list."""
+    eco_env = os.environ.get('ECO_ENV')
+    if eco_env is None:
+        print 'Ecosystem environment folder not found; please set environment variable ECO_ENV...'
     environment_files = os.path.join(os.getenv('ECO_ENV'), '*.env')
     possible_tools = [Tool(file_name) for file_name in glob.glob(environment_files)]
     tool_names = [new_tool.tool_plus_version for new_tool in possible_tools if new_tool.platform_supported]
@@ -186,8 +189,8 @@ Example:
 
     try:
         if args.listtools:
-            for tool in list_available_tools():
-                print tool
+            import pprint
+            pprint.pprint(list_available_tools(), width=1)
         elif args.build:
             if args.deploy:
                 build(tools, True, False, args.deploy)
