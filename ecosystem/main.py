@@ -100,8 +100,7 @@ def set_environment(tools=None):
 
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
+    argv = argv or sys.argv[1:]
 
     # parse the (command line) arguments; python 2.7+ (or download argparse)
     import argparse
@@ -151,6 +150,16 @@ Example:
     except Exception, e:
         sys.stderr.write('ERROR: {0:s}'.format(str(e)))
         return 1
+
+
+def eneedenv():
+    """Hook for entry_point eneedenv"""
+    return main(['--setenv', '-t'] + sys.argv[1:])
+
+
+def elist(aegv=None):
+    """Hook for entry_point elist"""
+    return main(['--listtools'])
 
 
 if __name__ == "__main__":

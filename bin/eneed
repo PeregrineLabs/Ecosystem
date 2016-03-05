@@ -1,1 +1,1 @@
-eneedenv > /tmp/ecoset; source /tmp/ecoset
+eneedenv "$@" > /tmp/ecoset; source /tmp/ecoset

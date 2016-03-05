@@ -119,3 +119,7 @@ class TestVariable(unittest.TestCase):
         self.variable_obj = Variable('MAYA_LOCATION')
         self.variable_obj.append_value('/some/path')
         self.assertEqual(self.variable_obj.env, '/some/path')
+
+
+if __name__ == '__main__':
+    unittest.main()

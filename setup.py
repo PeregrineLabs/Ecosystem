@@ -15,8 +15,8 @@ data = {
     'entry_points': {
         'console_scripts': [
             'eco = ecosystem.main:main',
-            'elist = ecosystem.main:list_available_tools',
-            'eneedenv = ecosystem.main:set_environment',
+            'elist = ecosystem.main:elist',
+            'eneedenv = ecosystem.main:eneedenv',
         ],
     },
     'description': 'Ecosystem is a cross-platform environment management system',

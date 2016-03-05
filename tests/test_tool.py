@@ -48,3 +48,7 @@ class TestTool(unittest.TestCase):
 
     # def test_definesVariable(self):
     #     self.assertTrue(self.tool_obj.definesVariable('foo'), False)
+
+
+if __name__ == '__main__':
+    unittest.main()
