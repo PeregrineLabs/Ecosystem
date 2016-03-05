@@ -56,10 +56,6 @@ def call_process(arguments):
     if _ON_WINDOWS:
         subprocess.call(arguments, shell=True)
     else:
-        print 'ARGUMENTS: ', arguments
-        print 'ENVIRON: '
-        import pprint
-        pprint.pprint(os.environ.copy())
         subprocess.call(arguments)
 
 
