@@ -56,6 +56,10 @@ def call_process(arguments):
     if _ON_WINDOWS:
         subprocess.call(arguments, shell=True)
     else:
+        print 'ARGUMENTS: ', arguments
+        print 'ENVIRON: '
+        import pprint
+        pprint.pprint(os.environ.copy())
         subprocess.call(arguments)
 
 
@@ -99,44 +103,6 @@ def set_environment(tools=None):
             print output
 
 
-# def ecosystem(tools=None, run_application=None, set_environment=False, force_rebuild=False, quick_build=False,
-#               run_build=False, deploy=False):
-#     tools = tools or []
-#     if run_build:
-#         env = Environment(tools)
-#         if env.success:
-#             env.set_env(os.environ)
-#             build_type = os.getenv('PG_BUILD_TYPE')
-#
-#             if not quick_build:
-#                 if force_rebuild:
-#                     try:
-#                         open('CMakeCache.txt')
-#                         os.remove('CMakeCache.txt')
-#                     except IOError:
-#                         print "Cache doesn't exist..."
-#
-#                 call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', MAKE_TARGET, '..'])
-#
-#             if deploy:
-#                 MAKE_COMMAND.append("package")
-#
-#             call_process(MAKE_COMMAND)
-#
-#     elif run_application is not None:
-#         env = Environment(tools)
-#         if env.success:
-#             env.set_env(os.environ)
-#             call_process([run_application])
-#
-#     elif set_environment:
-#         env = Environment(tools)
-#         if env.success:
-#             output = env.get_env()
-#             if output:
-#                 print output
-
-
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
@@ -170,22 +136,7 @@ Example:
 
     args = parser.parse_args(argv)
 
-    # if args.listtools:
-    #     for tool in list_available_tools():
-    #         print tool
-    #     return 0
-
     tools = args.tools.split(',') if args.tools is not None else []
-    # run_application = args.run
-    # set_environment = args.setenv
-    # force_rebuild = args.force
-    # quick_build = args.make
-    # run_build = args.build
-    # deploy = args.deploy
-    # if deploy:
-    #     force_rebuild = True
-    #     run_build = True
-    #     quick_build = False
 
     try:
         if args.listtools:
@@ -200,11 +151,6 @@ Example:
             run(tools, args.run)
         elif args.setenv:
             set_environment(tools)
-        # else:
-        #     if args.deploy:
-        #         ecosystem(tools, args.run, args.setenv, True, False, True, args.deploy)
-        #     else:
-        #         ecosystem(tools, args.run, args.setenv, args.force, args.make, args.build, args.deploy)
         return 0
     except Exception, e:
         sys.stderr.write('ERROR: {0:s}'.format(str(e)))

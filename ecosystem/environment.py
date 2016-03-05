@@ -18,19 +18,19 @@ class ValueWrapper(object):
     @property
     def value(self):
         if isinstance(self._value, dict):
-            return self._value.get(self._current_os, None) or self._value.get('common', None)
+            return self._value.get(self._current_os) or self._value.get('common')
         return self._value
 
     @property
     def strict_value(self):
-        return self._value.get('strict', False) if isinstance(self._value, dict) else False
+        return self._value.get('strict') if isinstance(self._value, dict) else False
 
     @property
     def absolute_value(self):
         if isinstance(self._value, dict):
-            abs_value = self._value.get('abs', False)
+            abs_value = self._value.get('abs')
             return (self._current_os in self._value['abs']) if isinstance(abs_value, list) else abs_value
-        return False
+        return None
 
 
 class Variable(object):
@@ -47,7 +47,11 @@ class Variable(object):
 
     @property
     def env(self):
-        return os.pathsep.join(self.values)
+        var_values = [x for x in self.values]
+        if self.absolute:
+            var_values = [os.path.abspath(x) for x in var_values]
+        return os.pathsep.join(var_values)
+        # return os.pathsep.join(self.values)
 
     def list_dependencies(self, value):
         """Checks the value to see if it has any dependency on other Variables, returning them in a list"""
@@ -64,18 +68,20 @@ class Variable(object):
     def append_value(self, value):
         """Sets and/or appends a value to the Variable"""
         value_wrapper = ValueWrapper(value)
-        self.strict = value_wrapper.strict_value
-        if self.strict is False:
+        if value_wrapper.strict_value is not None:
+            self.strict = value_wrapper.strict_value
+        elif value_wrapper.absolute_value is not None:
             self.absolute = value_wrapper.absolute_value
-        if value_wrapper.value not in self.values and value_wrapper.value is not None:
-            self.values += [value_wrapper.value]
-            for var_dependency in self.list_dependencies(value_wrapper.value):
+
+        value_wrapper_value = value_wrapper.value
+        if value_wrapper_value not in self.values and value_wrapper_value is not None:
+            self.values += [value_wrapper_value]
+            for var_dependency in self.list_dependencies(value_wrapper_value):
                 if not var_dependency in self.dependencies:
                     self.dependencies.append(var_dependency)
 
     def has_value(self):
         return self.values
-
 
 
 class Tool(object):
@@ -249,7 +255,7 @@ class Environment(object):
                     if not self.force and not var.strict:
                         if var.env != '':
                             self.value += os.pathsep
-                        self.value += '${%s}'%var.name
+                        self.value += '${{{0}}}'.format(var.name)
                 self.value += '\n'
                 self.defined_variables.append(var.name)
 
@@ -258,13 +264,14 @@ class Environment(object):
             if var.name not in self.defined_variables:
                 for dependency in var.dependencies:
                     self.get_var_env(self.variables.get(dependency, None))
+                var_value = var.env
                 if var.name in os.environ:
                     if not self.force and not var.strict:
-                        if var.env != '':
-                            var.env += os.pathsep
-                        var.env += os.environ[var.name]
+                        if var_value != '':
+                            var_value += os.pathsep
+                        var_value += os.environ[var.name]
                 self.defined_variables.append(var.name)
-                os.environ[var.name] = var.env
+                os.environ[var.name] = var_value
 
     def get_env(self):
         """Combine all of the variables in all the tools based on a dependency list and return as string."""
@@ -284,5 +291,8 @@ class Environment(object):
             for var_name, variable in self.variables.items():
                 if self.variables[var_name].has_value():
                     self.get_var_env(variable)
-            for env_name, env_value in environ.items():
-                os.environ[env_name] = os.path.expandvars(env_value)
+
+            # run this code twice to cross-expand any variables
+            for _ in range(2):
+                for env_name, env_value in environ.items():
+                    os.environ[env_name] = os.path.expandvars(env_value)
