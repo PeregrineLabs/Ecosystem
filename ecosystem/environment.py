@@ -1,144 +1,7 @@
 import os
 import glob
-import re
-import platform
-
-
-class ValueWrapper(object):
-    """Wraps a value to be held by a Variable"""
-
-    def __init__(self,
-                 value=None):
-        self._value = value
-
-    @property
-    def _current_os(self):
-        return platform.system().lower()
-
-    @property
-    def value(self):
-        if isinstance(self._value, dict):
-            return self._value.get(self._current_os, None) or self._value.get('common', None)
-        return self._value
-
-    @property
-    def strict_value(self):
-        return self._value.get('strict', False) if isinstance(self._value, dict) else False
-
-    @property
-    def absolute_value(self):
-        if isinstance(self._value, dict):
-            abs_value = self._value.get('abs', False)
-            return (self._current_os in self._value['abs']) if isinstance(abs_value, list) else abs_value
-        return False
-
-
-class Variable(object):
-    """Defines a variable required by a tool"""
-
-    def __init__(self, name):
-        self.name = name
-        self.dependency_re = None
-        self.dependents = []
-        self.values = []
-        self.dependencies = []
-        self.strict = False
-        self.absolute = False
-
-    @property
-    def env(self):
-        return os.pathsep.join(self.values)
-
-    def list_dependencies(self, value):
-        """Checks the value to see if it has any dependency on other Variables, returning them in a list"""
-        try:
-            self.dependency_re = self.dependency_re or re.compile(r"\${\w*}")
-            matched = self.dependency_re.findall(value)
-            if matched:
-                dependencies = [match[2:-1] for match in matched if match[2:-1] != self.name]
-                return list(set(dependencies))
-        except:
-            pass
-        return []
-
-    def append_value(self, value):
-        """Sets and/or appends a value to the Variable"""
-        value_wrapper = ValueWrapper(value)
-        self.strict = value_wrapper.strict_value
-        if self.strict is False:
-            self.absolute = value_wrapper.absolute_value
-        if value_wrapper.value not in self.values and value_wrapper.value is not None:
-            self.values += [value_wrapper.value]
-            for var_dependency in self.list_dependencies(value_wrapper.value):
-                if not var_dependency in self.dependencies:
-                    self.dependencies.append(var_dependency)
-
-    def has_value(self):
-        return self.values
-
-
-
-class Tool(object):
-    """Defines a tool - more specifically, a version of a tool"""
-
-    def __init__(self, filename):
-        try:
-            with open(filename, 'r') as f:
-                self.in_dictionary = eval(f.read())
-        except IOError:
-            self.in_dictionary = {}
-            print 'Unable to find file {0} ...'.format(filename)
-
-        self.tool = self.in_dictionary.get('tool', None)
-        self.version = self.in_dictionary.get('version', None)
-        self.platforms = self.in_dictionary.get('platforms', None)
-        # self.requirements = self.in_dictionary.get('requires', None)
-
-    @property
-    def requirements(self):
-        return self.in_dictionary.get('requires', None)
-
-    @property
-    def tool_plus_version(self):
-        return self.tool + (self.version or '')
-
-    @property
-    def platform_supported(self):
-        """Check to see if the tool is supported on the current platform"""
-        return platform.system().lower() in self.platforms if self.platforms else False
-
-    # TODO: move this to environment?
-    def get_vars(self, env):
-        for name, value in self.in_dictionary['environment'].items():
-            if name not in env.variables:
-                env.variables[name] = Variable(name)
-            env.variables[name].append_value(value)
-
-        # check for optional parameters
-        if 'optional' in self.in_dictionary:
-            for optional_name, optional_value in self.in_dictionary['optional'].items():
-                if optional_name in env.tools:
-                    for name, value in optional_value.items():
-                        if name not in env.variables:
-                            env.variables[name] = Variable(name)
-                        env.variables[name].append_value(value)
-
-
-class Want(object):
-    """Defines a request, possibly with a specific version"""
-
-    def __init__(self,
-                 requirement):
-        self.requirement = requirement
-
-    @property
-    def tool(self):
-        return re.findall(r".*?(?=[0-9])", self.requirement + '0')[0]
-
-    @property
-    def version(self):
-        result = re.findall(r"(?=[0-9]).*", self.requirement)
-        return result[0] if result else ''
+from tool import Tool
+from want import Want
 
 
 class Environment(object):
@@ -245,11 +108,12 @@ class Environment(object):
                 for dependency in var.dependencies:
                     self.get_var(self.variables.get(dependency, None))
                 self.value += 'setenv {0} {1}'.format(var.name, var.env)
+                # self.value += 'export {0}={1}'.format(var.name, var.env)
                 if os.getenv(var.name):
                     if not self.force and not var.strict:
                         if var.env != '':
                             self.value += os.pathsep
-                        self.value += '${%s}'%var.name
+                        self.value += '${{{0}}}'.format(var.name)
                 self.value += '\n'
                 self.defined_variables.append(var.name)
 
@@ -258,13 +122,14 @@ class Environment(object):
             if var.name not in self.defined_variables:
                 for dependency in var.dependencies:
                     self.get_var_env(self.variables.get(dependency, None))
+                var_value = var.env
                 if var.name in os.environ:
                     if not self.force and not var.strict:
-                        if var.env != '':
-                            var.env += os.pathsep
-                        var.env += os.environ[var.name]
+                        if var_value != '':
+                            var_value += os.pathsep
+                        var_value += os.environ[var.name]
                 self.defined_variables.append(var.name)
-                os.environ[var.name] = var.env
+                os.environ[var.name] = var_value
 
     def get_env(self):
         """Combine all of the variables in all the tools based on a dependency list and return as string."""
@@ -284,5 +149,8 @@ class Environment(object):
             for var_name, variable in self.variables.items():
                 if self.variables[var_name].has_value():
                     self.get_var_env(variable)
-            for env_name, env_value in environ.items():
-                os.environ[env_name] = os.path.expandvars(env_value)
+
+            # run this code twice to cross-expand any variables
+            for _ in range(2):
+                for env_name, env_value in environ.items():
+                    os.environ[env_name] = os.path.expandvars(env_value)

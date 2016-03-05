@@ -32,6 +32,7 @@ class TestMain(unittest.TestCase):
         os.environ = self.environ
 
     def test_main(self):
+        os.environ['PG_SW_BASE'] = '/foo'
         self.assertEqual(main(['-t', 'maya2015,yeti1.3.16']), 0)
 
 
