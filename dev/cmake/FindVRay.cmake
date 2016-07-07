@@ -59,6 +59,7 @@ IF ( VRAY_LOCATION )
     ELSE( WIN32 )
     IF ( APPLE )
 		FIND_PATH ( VRAY_OSX_LIBRARY_DIRS libplugman_s.a
+			${VRAY_LOCATION}/lib/mavericks_x64/gcc-4.2-cpp
 			${VRAY_LOCATION}/lib/mavericks_x64/gcc-4.2
 			${VRAY_LOCATION}/lib/mountain_lion_x64/gcc-4.2
 			${VRAY_LOCATION}/lib/snow_leopard_x64/gcc-4.2
