@@ -38,15 +38,6 @@ FIND_PATH( MAYA_LOCATION include/maya/MLibrary.h
   DOC "Root directory of Maya"
   )
   
-FIND_PATH( MENTALRAY_LOCATION include/mi_version.h
-  "${MAYA_LOCATION}/mentalray/"
-  "${MAYA_LOCATION}/../mentalray/devkit/"
-  "${MAYA_LOCATION}/devkit/mentalray/"
-  "${MAYA_LOCATION}/mentalray/devkit/"
-  "$ENV{MAYA_LOCATION}/../../devkit/mentalray/"
-  DOC "Root directory of Mental Ray headers"
-  )
-  
 IF( MAYA_LOCATION )
 	SET( MAYA_FOUND "YES" )
 	
@@ -110,15 +101,6 @@ IF( MAYA_LOCATION )
 	
 	INCLUDE_DIRECTORIES( ${MAYA_INCLUDE_DIR} )
 	LINK_DIRECTORIES( ${MAYA_LIBRARY_DIR} )
-	
-	IF(MENTALRAY_LOCATION)
-		INCLUDE_DIRECTORIES( ${MENTALRAY_LOCATION}/include )
-		IF( WIN32 )
-			LINK_DIRECTORIES( ${MENTALRAY_LOCATION}/lib/nt )
-		ENDIF( WIN32 )		
-	ELSE(MENTALRAY_LOCATION)
-		MESSAGE ( WARNING "Mental Ray not found!")
-	ENDIF(MENTALRAY_LOCATION )
 ELSE ( MAYA_LOCATION )
 	MESSAGE ( FATAL_ERROR "Maya not found!")
 ENDIF( MAYA_LOCATION )
