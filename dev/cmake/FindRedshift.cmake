@@ -40,7 +40,7 @@ IF ( REDSHIFT_LOCATION )
       SET ( REDSHIFT_LIBRARY_DIRS ${REDSHIFT_LOCATION}/lib/x64 CACHE STRING "Redshift library directories")
       SET ( REDSHIFT_LIBS redshift-core-vc100 )
     ELSE( WIN32 )
-  		SET ( REDSHIFT_LIBRARY_DIRS ${REDSHIFT_LINUX_LIBRARY_DIRS} CACHE STRING "Redshift library directories")
+  		SET ( REDSHIFT_LIBRARY_DIRS ${REDSHIFT_LOCATION}/lib CACHE STRING "Redshift library directories")
       SET ( REDSHIFT_LIBS redshift-core )
     ENDIF ( WIN32 )
     
