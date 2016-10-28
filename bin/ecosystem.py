@@ -500,6 +500,18 @@ Example:
 
                 call_process(MAKE_COMMAND)
 
+        elif visualStudio:
+            env = Environment(tools)
+            if env.success:
+                env.get_env(os.environ)
+                try:
+                    open('CMakeCache.txt')
+                    os.remove('CMakeCache.txt')
+                except IOError:
+                    print ("Cache doesn't exist...")
+
+                call_process(['cmake', '-G', 'Visual Studio 11 2012', '..'])
+
         elif run_application:
             env = Environment(tools)
             if env.success:
