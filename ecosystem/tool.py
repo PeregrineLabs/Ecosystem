@@ -1,5 +1,5 @@
 import platform
-from variable import Variable
+from .variable import Variable
 
 
 class Tool(object):
@@ -11,7 +11,7 @@ class Tool(object):
                 self.in_dictionary = eval(f.read())
         except IOError:
             self.in_dictionary = {}
-            print 'Unable to find file {0} ...'.format(filename)
+            print('Unable to find file {0} ...'.format(filename))
 
         self.tool = self.in_dictionary.get('tool', None)
         self.version = self.in_dictionary.get('version', None)

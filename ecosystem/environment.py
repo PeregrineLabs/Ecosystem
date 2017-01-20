@@ -1,7 +1,7 @@
 import os
 import glob
-from tool import Tool
-from want import Want
+from .tool import Tool
+from .want import Want
 
 
 class Environment(object):
@@ -20,15 +20,15 @@ class Environment(object):
         missing_tools = self.missing_tools
         if missing_tools:
             missing_tools = ', '.join(missing_tools)
-            print 'Unable to resolve all of the requested tools ({0} is missing), ' \
-                  'please check your list and try again!'.format(missing_tools)
+            print('Unable to resolve all of the requested tools ({0} is missing), ' \
+                  'please check your list and try again!'.format(missing_tools))
             self.success = False
 
         missing_requirements = self.missing_requirements
         if missing_requirements:
             missing_requirements = ', '.join(missing_requirements)
-            print 'Unable to resolve all of the requirements ({0} is missing), ' \
-                  'please check your list and try again!'.format(missing_requirements)
+            print('Unable to resolve all of the requirements ({0} is missing), ' \
+                  'please check your list and try again!'.format(missing_requirements))
             self.success = False
 
         for tool_name, tool in self.tools.items():
@@ -37,8 +37,8 @@ class Environment(object):
         missing_dependencies = self.missing_dependencies
         if missing_dependencies:
             missing_vars = ', '.join(missing_dependencies)
-            print 'Unable to resolve all of the required variables ({0} is missing), \
-                       please check your list and try again!'.format(missing_vars)
+            print('Unable to resolve all of the required variables ({0} is missing), \
+                       please check your list and try again!'.format(missing_vars))
             self.success = False
 
     @property
@@ -47,7 +47,7 @@ class Environment(object):
         for want in [Want(x) for x in set(self._wants)]:
             if want.version and (want.tool in wants_dict):
                 # have maya2015 while 'maya' has been processed
-                print 'Duplicate tool specified: {0} using {1}'.format(want.tool, want.requirement)
+                print('Duplicate tool specified: {0} using {1}'.format(want.tool, want.requirement))
             if want.version or (want.tool not in wants_dict):
                 # have maya2015, or 'maya' has not been processed
                 wants_dict[want.tool] = want
@@ -136,7 +136,7 @@ class Environment(object):
         if self.success:
             self.defined_variables = []
             self.value = '#Environment created via Ecosystem\n'
-            for var_name, variable in self.variables.items():
+            for var_name, variable in sorted(self.variables.items()):
                 if self.variables[var_name].has_value():
                     self.get_var(variable)
             return self.value

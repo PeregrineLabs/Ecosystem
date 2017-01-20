@@ -40,8 +40,8 @@ class TestTool(unittest.TestCase):
                 self.variables = {}
         foo_obj = Foo()
         self.tool_obj.get_vars(foo_obj)
-        variable_list = ['DYLD_LIBRARY_PATH', 'PATH', 'MAYA_LOCATION', 'MAYA_VERSION']
-        self.assertEqual(foo_obj.variables.keys(), variable_list)
+        variable_list = ['DYLD_LIBRARY_PATH', 'MAYA_LOCATION', 'MAYA_VERSION', 'PATH']
+        self.assertEqual(sorted(foo_obj.variables.keys()), variable_list)
 
     def test_platform_supported(self):
         self.assertTrue(self.tool_obj.platform_supported, True)

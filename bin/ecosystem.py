@@ -240,7 +240,7 @@ class Tool:
             with open(filename, 'r') as f:
                 self.in_dictionary = eval(f.read())
         except IOError:
-            print ('Unable to find file {0} ...'.format(filename))
+            print(('Unable to find file {0} ...'.format(filename)))
 
         if self.in_dictionary:
             self.tool = self.in_dictionary['tool']
@@ -304,7 +304,7 @@ class Environment:
                 tool_name = new_tool.tool + new_tool.version if new_tool.version != '' else new_tool.tool
                 if tool_name in self.wants:
                     if new_tool.tool in self.tools:
-                        print ('Duplicate tool specified: {0} using {1}{2}'.format(new_tool.tool, new_tool.tool, new_tool.version))
+                        print(('Duplicate tool specified: {0} using {1}{2}'.format(new_tool.tool, new_tool.tool, new_tool.version)))
                     self.tools[new_tool.tool] = new_tool
                     self.wants.remove(tool_name)
                 if new_tool.tool in self.wants:
@@ -316,7 +316,7 @@ class Environment:
 
         if len(self.wants) != 0:
             missing_tools = ', '.join(self.wants)
-            print ('Unable to resolve all of the required tools ({0} is missing), please check your list and try again!'.format(missing_tools))
+            print(('Unable to resolve all of the required tools ({0} is missing), please check your list and try again!'.format(missing_tools)))
             self.success = False
 
         for tool_name, tool in self.tools.items():
@@ -337,7 +337,7 @@ class Environment:
         missing_dependencies = set([dep for dep in ext_dependencies if not os.getenv(dep)])
         if missing_dependencies:
             missing_vars = ', '.join(missing_dependencies)
-            print ('Unable to resolve all of the required variables ({0} is missing),  please check your list and try again!'.format(missing_vars))
+            print(('Unable to resolve all of the required variables ({0} is missing),  please check your list and try again!'.format(missing_vars)))
             self.success = False
 
     def get_var(self, var):

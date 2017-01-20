@@ -34,9 +34,9 @@ import os
 import platform
 import subprocess
 import sys
-from environment import Tool, Environment
+from .environment import Tool, Environment
 
-from settings import MAKE_COMMAND, MAKE_TARGET
+from .settings import MAKE_COMMAND, MAKE_TARGET
 
 _ON_WINDOWS = (platform.system().lower() == 'windows')
 
@@ -45,7 +45,7 @@ def list_available_tools():
     """Reads all of the found .env files, parses the tool name and version creates a list."""
     eco_env = os.environ.get('ECO_ENV')
     if eco_env is None:
-        print 'Ecosystem environment folder not found; please set environment variable ECO_ENV...'
+        print('Ecosystem environment folder not found; please set environment variable ECO_ENV...')
     environment_files = os.path.join(os.getenv('ECO_ENV'), '*.env')
     possible_tools = [Tool(file_name) for file_name in glob.glob(environment_files)]
     tool_names = [new_tool.tool_plus_version for new_tool in possible_tools if new_tool.platform_supported]
@@ -72,7 +72,7 @@ def build(tools=None, force_rebuild=False, quick_build=False, deploy=False):
                     open('CMakeCache.txt')
                     os.remove('CMakeCache.txt')
                 except IOError:
-                    print "Cache doesn't exist..."
+                    print("Cache doesn't exist...")
 
             call_process(['cmake', '-DCMAKE_BUILD_TYPE={0}'.format(build_type), '-G', MAKE_TARGET, '..'])
 
@@ -96,7 +96,7 @@ def set_environment(tools=None):
     if env.success:
         output = env.get_env()
         if output:
-            print output
+            print(output)
 
 
 def main(argv=None):
@@ -147,7 +147,7 @@ Example:
         elif args.setenv:
             set_environment(tools)
         return 0
-    except Exception, e:
+    except Exception as e:
         sys.stderr.write('ERROR: {0:s}'.format(str(e)))
         return 1
 
