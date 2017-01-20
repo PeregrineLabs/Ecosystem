@@ -1,4 +1,5 @@
 import platform
+import unittest
 from setuptools import setup
 from pkg_resources import resource_string
 
@@ -20,8 +21,8 @@ data = {
         ],
     },
     'description': 'Ecosystem is a cross-platform environment management system',
-    'license': resource_string(__name__, 'LICENSE'),
-    'long_description': resource_string(__name__, 'README.md'),
+    'license': resource_string(__name__, 'LICENSE').decode('utf8'),
+    'long_description': resource_string(__name__, 'README.md').decode('utf8'),
     'packages': [
         'ecosystem',
         ],
@@ -42,9 +43,15 @@ data = {
         ],
     },
     'scripts': [],
+    'test_suite': 'setup.test_suite',
     'version': 'v0.5.1',
     'url': 'https://github.com/PeregrineLabs/Ecosystem',
 }
+
+def test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('tests', pattern='test_*.py')
+    return test_suite
 
 # multi-platform custom scripts
 if _ON_POSIX:
