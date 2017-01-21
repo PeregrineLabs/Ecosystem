@@ -1,7 +1,11 @@
+import os
 import platform
 import unittest
 from setuptools import setup
-from pkg_resources import resource_string
+
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.md')).read()
+LICENSE = open(os.path.join(here, 'LICENSE')).read()
 
 _ON_POSIX = (platform.system().lower() in ['linux', 'linux2', 'darwin'])
 
@@ -21,8 +25,8 @@ data = {
         ],
     },
     'description': 'Ecosystem is a cross-platform environment management system',
-    'license': resource_string(__name__, 'LICENSE').decode('utf8'),
-    'long_description': resource_string(__name__, 'README.md').decode('utf8'),
+    'license': LICENSE,
+    'long_description': README,
     'packages': [
         'ecosystem',
         ],
