@@ -1,7 +1,7 @@
 # Ecosystem 
 ![Ecosystem](ecosystem/images/ecosystem.png?raw=true)
 ## Overview
-Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working enviornment is important (and it really should be!).  
+Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working environment is important (and it really should be!).  
 
 ## Why
 Although it may seem like a simple task it's still very common to find that many of the studios we work with don't have control over their environment which is the root of many problems (wrong versions of software being accessed, wrong shared object versions, incompatible versions, etc.).  Our hope is that Ecosystem may be used to not just solve these problems but improve workflow in general.  
@@ -52,7 +52,7 @@ which provide some functional aliases.
 
 	eco -t maya2014,vray3.05,yeti1.3.0 -r maya
 
-to start maya with the inteded environment. 
+to start maya with the intended environment. 
 
 ## Tool Environments
 
@@ -91,7 +91,7 @@ Here is an example:
 					 },
 	}
 
-The key words are self explanitory, as you can see each environment file expects the tool to be installed in a specific location.  Some applications (like Maya) are generally installed in common locations (though can be installed on a network) where others are much more flexible.  It is suggested that you review the .env files for the tools you may want to use to review the expected location.  
+The key words are self explanatory, as you can see each environment file expects the tool to be installed in a specific location.  Some applications (like Maya) are generally installed in common locations (though can be installed on a network) where others are much more flexible.  It is suggested that you review the .env files for the tools you may want to use to review the expected location.  
 
 We've tried hard to keep all off the tools installed under `PG_SW_BASE` using the vendors name and then product version.  Although this may be slightly non-standard the benefits greatly outweigh any downside.
 
@@ -108,7 +108,7 @@ Please email the list below if it's not completely obvious where Ecosystem is lo
 We've recently pushed all of our CMake files into the repository with the aim in helping others get started with cross platform VFX development.  This also includes template CMakeList files for various applications. 
 
 ## Development
-Ecosystem in some form has been used for quite some time within Peregrine Labs though it has been extracted from a much larger system used to manage distributed workflows that wouldn't have leant itself as well to an open source project (remote push/pull from specific servers).  With that said, if there is interest we would love to eventually evolve Ecosystem to create a more generic means of packaging up dependencies and depolying them along with environment management.
+Ecosystem in some form has been used for quite some time within Peregrine Labs though it has been extracted from a much larger system used to manage distributed workflows that wouldn't have leant itself as well to an open source project (remote push/pull from specific servers).  With that said, if there is interest we would love to eventually evolve Ecosystem to create a more generic means of packaging up dependencies and deploying them along with environment management.
 
 There may still be some Peregrine specific cruft in the initial distribution that will need to be resolved, please bear with us! 
 
