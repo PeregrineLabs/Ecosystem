@@ -1,5 +1,0 @@
-#Ecosystem Aliases
-alias eco 'ecosystem.py \!:*'
-alias eneed 'ecosystem.py --setenv --tools \!:1 > /tmp/ecoset; source /tmp/ecoset'
-alias eneedenv 'ecosystem.py --setenv --tools \!:1'
-alias elist 'ecosystem.py --list'
