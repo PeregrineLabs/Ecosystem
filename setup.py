@@ -15,7 +15,6 @@ data = {
     'author': 'Peregrine*Labs',
     'author_email': 'support@peregrinelabs.com',
     'bin': [
-        'bin/eneed'
     ],
     'entry_points': {
         'console_scripts': [
