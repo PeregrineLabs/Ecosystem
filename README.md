@@ -1,6 +1,4 @@
 # Ecosystem 
-![Ecosystem](ecosystem/images/ecosystem.png?raw=true)
-## Overview
 Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working enviornment is important (and it really should be!).  
 
 ## Why
@@ -28,16 +26,31 @@ Ecosystem has been developed to be cross platform so the above works on Linux, O
 Although the intention is for Ecosystem to be used from a shell, the .py source is written in such a way that it would be easy to embed into a GUI application to have a more visual launcher.  
 
 ## Getting Started
-Once you've cloned the repository all that is left is to create a few environment variables (once!) so Ecosystem knows where to find the .env files and to help resolve some of the dependencies. 
+We've recently updated how Ecosystem which allows it to be used both from the command line and as a python module, it requires Python 2.7 or higher and pip can/should now be used to install it system wide.  
 
-	ECO_ROOT is the root directory of ecosystem
+Once you've cloned the repository you can use pip to install, at Peregrine Labs we use the -e option to maintain Ecosystem 
+in development mode to propagate changes quickly. 
+
+From the directory which Ecosystem was cloned into you can run (assuming you cloned into the default Ecosystem directory )
+
+    pip install ecosystem
+    
+or 
+
+    pip install -e Ecosystem
+    
+if you'd like to maintain a live "developer mode" link to the local repository - keep in mind you may need to have Administrator access to do so. 
+
+All that is left is to create a few environment variables (once!) so Ecosystem knows where to find the .env files and to help resolve some of the dependencies. 
+
+	ECO_ROOT is the ecosystem directory within the local cloned repository
 	ECO_ENV is the directory that contains all of the .env tool files (this is very likely $ECO_ROOT/env)
 	PATH the Ecosystem /bin directory will need to be added
 	PG_SW_BASE is used in the .env tool files and is the mount point for many of the tool installations (so you can have shared or local installations)
 
 We generally have local installations of all our software, so ours look like
 
-	setenv ECO_ROOT ~/dev/ecosystem
+	setenv ECO_ROOT ~/dev/Ecosystem/ecosystem
 	setenv ECO_ENV ${ECO_ROOT}/env
 	setenv PATH ${ECO_ROOT}/bin:${PATH}
 	setenv PG_SW_BASE /base/sw/
@@ -46,15 +59,17 @@ On **Linux** and **Osx** you will also want to
 
 	source ${ECO_ROOT}/etc/ecosystem.aliases
 
-which provide some functional aliases.  
+which provides some functional aliases.  
 
 **Windows** is a slightly different beast, there is a eco.cmd file that wraps ecosystem.py - unlike linux and osx the environment is only temporarily set (if someone has a work around please let us know).  Using the example above one would do 
 
 	eco -t maya2014,vray3.05,yeti1.3.0 -r maya
 
-to start maya with the inteded environment. 
+to start maya with the intended environment. 
 
 ## Tool Environments
+
+For Ecosystem to work you need to set the ECO_ENV environment variable to a directory location that contains the required .env files.  Our in house repo is public and can be accessed at [https://github.com/PeregrineLabs/Ecosystem-Env](https://github.com/PeregrineLabs/Ecosystem-Env) - to get started this can be cloned to give you an example of how you might set up commong VFX/animation applications.
 
 Each .env file contains a python dictionary with specific key words to control how Ecosystem resolves the tools needs.  
 
@@ -91,7 +106,7 @@ Here is an example:
 					 },
 	}
 
-The key words are self explanitory, as you can see each environment file expects the tool to be installed in a specific location.  Some applications (like Maya) are generally installed in common locations (though can be installed on a network) where others are much more flexible.  It is suggested that you review the .env files for the tools you may want to use to review the expected location.  
+The key words are self explanatory, as you can see each environment file expects the tool to be installed in a specific location.  Some applications (like Maya) are generally installed in common locations (though can be installed on a network) where others are much more flexible.  It is suggested that you review the .env files for the tools you may want to use to review the expected location.  
 
 We've tried hard to keep all off the tools installed under `PG_SW_BASE` using the vendors name and then product version.  Although this may be slightly non-standard the benefits greatly outweigh any downside.
 
@@ -108,7 +123,7 @@ Please email the list below if it's not completely obvious where Ecosystem is lo
 We've recently pushed all of our CMake files into the repository with the aim in helping others get started with cross platform VFX development.  This also includes template CMakeList files for various applications. 
 
 ## Development
-Ecosystem in some form has been used for quite some time within Peregrine Labs though it has been extracted from a much larger system used to manage distributed workflows that wouldn't have leant itself as well to an open source project (remote push/pull from specific servers).  With that said, if there is interest we would love to eventually evolve Ecosystem to create a more generic means of packaging up dependencies and depolying them along with environment management.
+Ecosystem in some form has been used for quite some time within Peregrine Labs though it has been extracted from a much larger system used to manage distributed workflow that wouldn't have leant itself as well to an open source project (remote push/pull from specific servers).  With that said, if there is interest we would love to eventually evolve Ecosystem to create a more generic means of packaging up dependencies and depolying them along with environment management.
 
 There may still be some Peregrine specific cruft in the initial distribution that will need to be resolved, please bear with us! 
 
@@ -116,3 +131,8 @@ Please use the **GitHub** issue tracker to report issues and if you've made fixe
 
 ## Discussion
 We have a [ecosystem-env](https://groups.google.com/forum/#!forum/ecosystem-env) discussion list to share feedback and ask questions.
+
+## Contributors
+* Peregrine Labs - Colin Doncaster and Simon Broadhead
+* Axis Animation - Jason Fairley 
+* you - please fork, enhance, update, improve and send us a pull request! 
