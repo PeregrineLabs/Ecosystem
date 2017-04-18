@@ -1,5 +1,5 @@
 # Ecosystem 
-Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working enviornment is important (and it really should be!).  
+Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working environment is important (and it really should be!).  
 
 ## Why
 Although it may seem like a simple task it's still very common to find that many of the studios we work with don't have control over their environment which is the root of many problems (wrong versions of software being accessed, wrong shared object versions, incompatible versions, etc.).  Our hope is that Ecosystem may be used to not just solve these problems but improve workflow in general.  
