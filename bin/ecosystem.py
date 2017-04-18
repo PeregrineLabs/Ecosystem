@@ -513,6 +513,14 @@ Example:
                 call_process(['cmake', '-G', 'Visual Studio 11 2012', '..'])
 
         elif run_application:
+            
+            # If we launch eco with "" surrounding the command and args, we split it here
+            # and feed it to subprocess (e.g., eco -t Nuke9.0,StudioNukePlugins -r "Nuke 9.0 -nukex")
+
+            if 'Windows' in platform.system():
+                run_application = run_application.split(" ")
+                run_application = [run_application[0]] + [" {}".format(arg) for arg in run_application[1:]]
+            
             env = Environment(tools)
             if env.success:
                 env.get_env(os.environ)
