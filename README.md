@@ -67,6 +67,21 @@ which provides some functional aliases.
 
 to start maya with the intended environment. 
 
+## Updating
+When a new version of Ecosystem is available you can use 
+
+    git pull origin 
+  
+to update your local repository, followed by
+
+    pip install Ecosystem --upgrade
+   
+or 
+
+    pip install -e Ecosystem --upgrade 
+  
+which will update your site-packages with the newer release. 
+
 ## Tool Environments
 
 For Ecosystem to work you need to set the ECO_ENV environment variable to a directory location that contains the required .env files.  Our in house repo is public and can be accessed at [https://github.com/PeregrineLabs/Ecosystem-Env](https://github.com/PeregrineLabs/Ecosystem-Env) - to get started this can be cloned to give you an example of how you might set up commong VFX/animation applications.
