@@ -86,7 +86,7 @@ which will update your site-packages with the newer release.
 
 For Ecosystem to work you need to set the ECO_ENV environment variable to a directory location that contains the required .env files.  Our in house repo is public and can be accessed at [https://github.com/PeregrineLabs/Ecosystem-Env](https://github.com/PeregrineLabs/Ecosystem-Env) - to get started this can be cloned to give you an example of how you might set up commong VFX/animation applications.
 
-Each .env file contains a python dictionary with specific key words to control how Ecosystem resolves the tools needs.  
+Each .env file is based on the JSON format with specific key words to control how Ecosystem resolves a tools requirements.  
 
 Here is an example:
 
