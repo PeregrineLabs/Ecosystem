@@ -1,4 +1,4 @@
-import platform
+import platform, json
 from .variable import Variable
 
 
@@ -8,7 +8,7 @@ class Tool(object):
     def __init__(self, filename):
         try:
             with open(filename, 'r') as f:
-                self.in_dictionary = eval(f.read())
+                self.in_dictionary = json.load(f)
         except IOError:
             self.in_dictionary = {}
             print('Unable to find file {0} ...'.format(filename))
