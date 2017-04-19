@@ -1,4 +1,4 @@
-# Ecosystem 
+# Ecosystem v0.7.0
 Ecosystem is a cross-platform environment management system from [Peregrine Labs](http://peregrinelabs.com) originally developed for VFX/Animation production R&D but could be used in any situation where a fine understanding of your working environment is important (and it really should be!).  
 
 ## Why

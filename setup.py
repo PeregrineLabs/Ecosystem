@@ -47,7 +47,7 @@ data = {
     },
     'scripts': [],
     'test_suite': 'setup.test_suite',
-    'version': 'v0.6.0',
+    'version': 'v0.7.0',
     'url': 'https://github.com/PeregrineLabs/Ecosystem',
 }
 
