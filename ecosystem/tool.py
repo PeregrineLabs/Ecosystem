@@ -1,7 +1,6 @@
 import platform, json
 from .variable import Variable
 
-
 class Tool(object):
     """Defines a tool - more specifically, a version of a tool"""
 

@@ -35,8 +35,9 @@ import platform
 import subprocess
 import sys
 from .environment import Tool, Environment
-
+from .preset import Preset
 from .settings import MAKE_COMMAND, MAKE_TARGET
+import json
 
 _ON_WINDOWS = (platform.system().lower() == 'windows')
 
@@ -50,6 +51,41 @@ def list_available_tools():
     possible_tools = [Tool(file_name) for file_name in glob.glob(environment_files)]
     tool_names = [new_tool.tool_plus_version for new_tool in possible_tools if new_tool.platform_supported]
     return sorted(list(set(tool_names)))
+
+
+def resolve_presets(presets):
+    # look in the current and parent directory for a eco.preset file
+    if os.path.exists('./eco.preset'):
+        preset_file = './eco.preset'
+    elif os.path.exists('../eco.preset'):
+        preset_file = '../eco.preset'
+    else:
+        print('Preset requested but Ecosystem can\'t find any eco.preset file.')
+        return []
+
+    with open(preset_file, 'r') as f:
+        preset_dictionary = json.load(f)
+
+    defined_presets = {}
+    found_presets = []
+
+    # read them in and create all possible Preset representations
+    # if any, find the one(s) that match the requests presets
+    for preset in preset_dictionary:
+        defined_presets[preset] = Preset(preset_dictionary[preset])
+        if preset in presets:
+            found_presets.append(defined_presets[preset])
+
+    # resolve any preset dependencies, this is NOT recursive at this time.
+    for preset in found_presets:
+        preset.resolve_dependencies(defined_presets)
+
+    # return the flattened and expanded list of tools requested as a list
+    tools = []
+    for preset in found_presets:
+        tools += preset.tools
+
+    return set(tools)
 
 
 def call_process(arguments):
@@ -128,10 +164,17 @@ Example:
                         help='run an application')
     parser.add_argument('-s', '--setenv', action='store_true',
                         help='output setenv statements to be used to set the shells environment')
+    parser.add_argument('-p', '--presets', type=str, default=None,
+                        help='specify a list of presets if any')
 
     args = parser.parse_args(argv)
 
     tools = args.tools.split(',') if args.tools is not None else []
+
+    # assuming tools defined take precedence over any in a preset
+    if args.presets:
+        presets = set(args.presets.split(',') if args.presets is not None else [])
+        tools += resolve_presets(presets)
 
     try:
         if args.listtools:
