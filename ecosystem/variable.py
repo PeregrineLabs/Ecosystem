@@ -27,6 +27,9 @@ class ValueWrapper(object):
         if self._value:
             self._value = os.path.normpath(self._value)
 
+            if platform.system().lower() == 'windows':
+                self._value = self._value.replace('\\', '/')
+
     @property
     def value(self):
         return self._value
