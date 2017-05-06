@@ -66,12 +66,7 @@ IF( MAYA_LOCATION )
 		SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/tbb.lib ${MAYA_LIBRARY_DIR}/tbbmalloc.lib )
 		SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_LIBRARY_DIR}/../bin/tbb.dll ${MAYA_LIBRARY_DIR}/../bin/tbbmalloc.dll )
 	ELSE( WIN32 )
-		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_GNU_SOURCE -DCC_GNU_ -D_LANGUAGE_C_PLUS_PLUS -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing -funsigned-char" )
-		
-		SET( CMAKE_CXX_FLAGS 
-		  "${CMAKE_CXX_FLAGS} -fno-gnu-keywords"
-		  )
-		
+		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing -funsigned-char" )
 		SET( OS_LIBRARIES "" )
 		SET( MAYA_EXTENSION ".so" )
 		
@@ -83,7 +78,7 @@ IF( MAYA_LOCATION )
 			SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/libtbb.dylib ${MAYA_LIBRARY_DIR}/libtbbmalloc.dylib )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
 		ELSE( APPLE )
-			SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -pthread -m64 -DUNIX -D_BOOL -DLINUX -DFUNCPROTO -D_GNU_SOURCE -DLINUX_64 -fPIC -fno-strict-aliasing -Wno-deprecated -Wall -Wno-multichar -Wno-comment -Wno-sign-compare -funsigned-char -Wno-reorder -fno-gnu-keywords -ftemplate-depth-25" )
+			SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -pthread -m64 -DUNIX -D_BOOL -DLINUX -DFUNCPROTO -DLINUX_64 -fPIC -Wno-deprecated -Wall -Wno-multichar -Wno-comment -Wno-sign-compare -funsigned-char -Wno-reorder" )
 			SET( MAYA_LIBRARY_STYLE SHARED )
 			SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/libtbb.so ${MAYA_LIBRARY_DIR}/libtbbmalloc.so )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
