@@ -34,7 +34,6 @@ SET( MAYA_FOUND "NO" )
 
 FIND_PATH( MAYA_LOCATION include/maya/MLibrary.h
   "$ENV{MAYA_LOCATION}"
-  "$ENV{MAYA_LOCATION}/../../devkit/"
   "$ENV{MAYA_LOCATION}/../../"
   DOC "Root directory of Maya"
   )
@@ -47,7 +46,7 @@ IF( MAYA_LOCATION )
 	SET( MAYA_INCLUDE_DIR       "${MAYA_LOCATION}/include" )
 	
 	IF ( APPLE )
-		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/../Maya.app/Contents/MacOS" )
+		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/Maya.app/Contents/MacOS" )
 	ELSE ( APPLE )
 		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/lib" )
 	ENDIF ( APPLE )
