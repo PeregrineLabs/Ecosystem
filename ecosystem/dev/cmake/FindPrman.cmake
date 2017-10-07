@@ -44,6 +44,8 @@ IF ( PRMAN_Base_Dir )
   	SET ( PRMAN_LIBRARY_DIRS ${PRMAN_Base_Dir}/lib
     	CACHE STRING "Prman library directories")
   	SET ( PRMAN_FOUND TRUE )
+	
+	LINK_DIRECTORIES( ${PRMAN_LIBRARY_DIRS} )
 ELSE ( PRMAN_Base_Dir )
 	MESSAGE ( WARNING "Prman not found!")
 ENDIF ( PRMAN_Base_Dir )
