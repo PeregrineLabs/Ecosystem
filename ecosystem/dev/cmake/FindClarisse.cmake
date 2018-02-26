@@ -25,7 +25,7 @@
 #  CLARISSE_FOUND - true if VRAY was found on the system
 #  CLARISSE_LIBRARY_DIRS - the full set of library directories
 
-FIND_PATH ( CLARISSE_ROOT_LOCATION ./clarisse
+FIND_PATH ( CLARISSE_ROOT_LOCATION NAMES ./clarisse ./clarisse.exe PATHS
     "$ENV{CLARISSE_ROOT}"
   )
 
@@ -39,13 +39,20 @@ IF ( CLARISSE_ROOT_LOCATION AND CLARISSE_SDK_LOCATION )
 	  	
   	SET ( CLARISSE_INCLUDE_DIRS ${CLARISSE_SDK_LOCATION}/include CACHE STRING "Clarisse include directories")
     
-  	SET ( CLARISSE_LIBRARY_DIRS ${CLARISSE_ROOT_LOCATION} CACHE STRING "Clarisse library directories")
-    SET ( CLARISSE_LIBS ix_core ix_gmath ix_geometry ix_of ix_module ix_resource ix_poly ix_of ix_app ix_sys )
+	IF( WIN32 )
+	  	SET ( CLARISSE_LIBRARY_DIRS ${CLARISSE_SDK_LOCATION}/lib CACHE STRING "Clarisse library directories")
+	ELSE()
+		SET ( CLARISSE_LIBRARY_DIRS ${CLARISSE_ROOT_LOCATION} CACHE STRING "Clarisse library directories")
+	ENDIF()
+	
+    SET ( CLARISSE_LIBS ix_clarisse_app ix_core ix_gmath ix_curve ix_geometry ix_of ix_module ix_resource ix_poly ix_of ix_app ix_app_base ix_sys )
     
     SET( CLARISSE_DEFINITIONS "-fPIC")
     	
     LINK_DIRECTORIES( ${CLARISSE_LIBRARY_DIRS} )
-    MESSAGE(STATUS "Found Clarisse Library Dirs: ${CLARISSE_LIBRARY_DIRS}")    
+    MESSAGE(STATUS "Found Clarisse Library Dirs: ${CLARISSE_LIBRARY_DIRS}")   
+
+	MESSAGE(STATUS "Linking with Clarisse Libraries: ${CLARISSE_LIBS}")
     
   	SET ( CLARISSE_FOUND TRUE )
 ELSE ( CLARISSE_ROOT_LOCATION AND CLARISSE_SDK_LOCATION )
