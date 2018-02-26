@@ -25,7 +25,7 @@
 #  CLARISSE_FOUND - true if VRAY was found on the system
 #  CLARISSE_LIBRARY_DIRS - the full set of library directories
 
-FIND_PATH ( CLARISSE_ROOT_LOCATION NAMES ./clarisse ./clarisse.exe PATHS
+FIND_PATH ( CLARISSE_ROOT_LOCATION NAMES clarisse clarisse.exe PATHS
     "$ENV{CLARISSE_ROOT}"
   )
 
