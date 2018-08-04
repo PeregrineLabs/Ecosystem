@@ -47,7 +47,7 @@ IF ( CLARISSE_ROOT_LOCATION AND CLARISSE_SDK_LOCATION )
 		SET ( CLARISSE_LIBRARY_DIRS ${CLARISSE_ROOT_LOCATION} CACHE STRING "Clarisse library directories")
 	ENDIF()
 	
-    SET ( CLARISSE_LIBS ix_clarisse_app ix_core ix_gmath ix_curve ix_geometry ix_of ix_module ix_resource ix_poly ix_of ix_app ix_app_base ix_sys )
+    SET ( CLARISSE_LIBS ix_app ix_core ix_gmath ix_curve ix_geometry ix_of ix_module ix_resource ix_poly ix_of ix_app ix_app_base ix_sys )
     
     SET( CLARISSE_DEFINITIONS "-fPIC")
     	
