@@ -1,4 +1,4 @@
-#
+p#
 # (c) 2010-Present Peregrine Labs a division of Peregrine Visual Storytelling Ltd.
 # All rights reserved.
 #
@@ -72,6 +72,7 @@ IF ( VRAY_LOCATION )
 		FIND_PATH ( VRAY_LINUX_LIBRARY_DIRS libvray.so
 			${VRAY_LOCATION}/lib/linux_x64/gcc-4.1
 			${VRAY_LOCATION}/lib/linux_x64/gcc-4.4
+			${VRAY_LOCATION}/lib/linux_x64/clang-gcc-4.8
 		)
   		SET ( VRAY_LIBRARY_DIRS ${VRAY_LINUX_LIBRARY_DIRS} CACHE STRING "VRay library directories")
     ENDIF( APPLE )
