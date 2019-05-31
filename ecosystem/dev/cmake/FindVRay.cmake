@@ -53,15 +53,19 @@ IF ( VRAY_LOCATION )
 	ELSEIF ( MAYA_VERSION EQUAL 2018 )
     SET ( VRAY_LIBRARY_DIRS ${VRAY_LOCATION}/lib/x64/vc14 
     	CACHE STRING "VRay library directories")
-	ELSE ( MAYA_VERSION EQUAL 2015 )
+	ELSEIF ( MAYA_VERSION EQUAL 2015 )
     SET ( VRAY_LIBRARY_DIRS ${VRAY_LOCATION}/lib/x64/vc11 
     	CACHE STRING "VRay library directories")
+	ELSE ( MAYA_VERSION EQUAL 2012 )
+	    SET ( VRAY_LIBRARY_DIRS ${VRAY_LOCATION}/lib
+	    	CACHE STRING "VRay library directories")
 	ENDIF ( MAYA_VERSION EQUAL 2012 )
 	MESSAGE(STATUS "VRay Library Dirs: ${VRAY_LIBRARY_DIRS}")
     SET ( VRAY_LIBS plugman_s vray rayserver_s vutils_s )
     ELSE( WIN32 )
     IF ( APPLE )
 		FIND_PATH ( VRAY_OSX_LIBRARY_DIRS libplugman_s.a
+			${VRAY_LOCATION}/lib
 			${VRAY_LOCATION}/lib/mavericks_x64/gcc-4.2-cpp
 			${VRAY_LOCATION}/lib/mavericks_x64/gcc-4.2
 			${VRAY_LOCATION}/lib/mountain_lion_x64/gcc-4.2
@@ -70,6 +74,7 @@ IF ( VRAY_LOCATION )
   		SET ( VRAY_LIBRARY_DIRS ${VRAY_OSX_LIBRARY_DIRS} CACHE STRING "VRay library directories")
     ELSE ( APPLE )
 		FIND_PATH ( VRAY_LINUX_LIBRARY_DIRS libvray.so
+			${VRAY_LOCATION}/lib
 			${VRAY_LOCATION}/lib/linux_x64/gcc-4.1
 			${VRAY_LOCATION}/lib/linux_x64/gcc-4.4
 			${VRAY_LOCATION}/lib/linux_x64/clang-gcc-4.8
