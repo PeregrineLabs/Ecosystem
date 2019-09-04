@@ -3,6 +3,9 @@ import glob
 from .tool import Tool
 from .want import Want
 
+def get_export_command(var, value):
+    template = os.getenv('ECO_SETENV_TEMPLATE', 'setenv {0} {1}')
+    return template.format(var, value)
 
 class Environment(object):
     """Once initialized this will represent the environment defined by the wanted tools."""
@@ -107,7 +110,8 @@ class Environment(object):
             if var.name not in self.defined_variables:
                 for dependency in var.dependencies:
                     self.get_var(self.variables.get(dependency, None))
-                self.value += 'setenv {0} {1}'.format(var.name, var.env)
+                self.value += get_export_command(var.name, var.env)
+                # self.value += 'setenv {0} {1}'.format(var.name, var.env)
                 # self.value += 'export {0}={1}'.format(var.name, var.env)
                 if os.getenv(var.name):
                     if not self.force and not var.strict:
