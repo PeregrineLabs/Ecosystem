@@ -4,14 +4,14 @@
 #
 # The coded instructions, statements, computer programs, and/or related
 # material (collectively the "Data") in these files contain unpublished
-# information proprietary to Peregrine Visual Storytelling Ltd. ("Peregrine") 
-# and/or its licensors, which is protected by U.S. and Canadian federal 
+# information proprietary to Peregrine Visual Storytelling Ltd. ("Peregrine")
+# and/or its licensors, which is protected by U.S. and Canadian federal
 # copyright law and by international treaties.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. PEREGRINE
 # DOES NOT MAKE AND HEREBY DISCLAIMS ANY EXPRESS OR IMPLIED WARRANTIES
 # INCLUDING, BUT NOT LIMITED TO, THE WARRANTIES OF NON-INFRINGEMENT,
-# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, OR ARISING FROM A COURSE 
+# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, OR ARISING FROM A COURSE
 # OF DEALING, USAGE, OR TRADE PRACTICE. IN NO EVENT WILL PEREGRINE AND/OR ITS
 # LICENSORS BE LIABLE FOR ANY LOST REVENUES, DATA, OR PROFITS, OR SPECIAL,
 # DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES, EVEN IF PEREGRINE AND/OR ITS
@@ -37,31 +37,31 @@ FIND_PATH( MAYA_LOCATION include/maya/MLibrary.h
   "$ENV{MAYA_LOCATION}/../../"
   DOC "Root directory of Maya"
   )
-  
+
 IF( MAYA_LOCATION )
 	SET( MAYA_FOUND "YES" )
-	
+
 	MESSAGE(STATUS "Found Maya: ${MAYA_LOCATION}")
 
 	SET( MAYA_INCLUDE_DIR       "${MAYA_LOCATION}/include" )
-	
+
 	IF ( APPLE )
 		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/Maya.app/Contents/MacOS" )
 	ELSE ( APPLE )
 		SET( MAYA_LIBRARY_DIR       "${MAYA_LOCATION}/lib" )
 	ENDIF ( APPLE )
-	
-	SET( MAYA_DEFINITIONS 
-	  "-DREQUIRE_IOSTREAM -DBits64_ -DPG_MAYA_PLUGIN -D_BOOL"
+
+	SET( MAYA_DEFINITIONS
+	  "-DPG_MAYA_PLUGIN -D_BOOL"
 	)
-		
+
 	IF( WIN32 )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -nologo -D_WIN32 -DWIN32 -DNT_PLUGIN -D_WINDOWS -D_WINDLL -DVC80_UPGRADE=0x0710" )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -Zi -EHsc -GR -GS" )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} /fp:precise" )
 		SET( MAYA_LINK_FLAGS "-DLL -nologo -MACHINE:X64 /export:initializePlugin /export:uninitializePlugin /MANIFEST /SUBSYSTEM:WINDOWS /NXCOMPAT /TLBID:1 /DYNAMICBASE" )
 		SET( MAYA_EXTENSION ".mll" )
-		
+
 		SET( MAYA_LIBRARY_STYLE MODULE )
 		SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/tbb.lib ${MAYA_LIBRARY_DIR}/tbbmalloc.lib )
 		SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_LIBRARY_DIR}/../bin/tbb.dll ${MAYA_LIBRARY_DIR}/../bin/tbbmalloc.dll )
@@ -69,10 +69,9 @@ IF( MAYA_LOCATION )
 		SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -Wall -Wextra -Wno-unused-parameter -fno-strict-aliasing -funsigned-char" )
 		SET( OS_LIBRARIES "" )
 		SET( MAYA_EXTENSION ".so" )
-		
+
 		IF ( APPLE )
-			SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -fno-common -DOSMac_ -DOSMacOSX_ -DOSMac_MachO_" )
-			SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpascal-strings -arch x86_64" )
+			SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -DOSMac_ -DOSMacOSX_" )
 			SET( MAYA_EXTENSION ".bundle" )
 			SET( MAYA_LIBRARY_STYLE MODULE )
 			SET( MAYA_TBB_LIBRARIES ${MAYA_LIBRARY_DIR}/libtbb.dylib ${MAYA_LIBRARY_DIR}/libtbbmalloc.dylib )
@@ -84,16 +83,16 @@ IF( MAYA_LOCATION )
 			SET( MAYA_TBB_RUNTIME_LIBRARIES ${MAYA_TBB_LIBRARIES} )
 		ENDIF( APPLE )
 	ENDIF( WIN32 )
-	
+
 	SET( MAYA_VERSION "$ENV{MAYA_VERSION}" )
 	IF ( NOT MAYA_VERSION )
 		MESSAGE ( FATAL_ERROR "Maya version not defined!")
 	ELSE( NOT MAYA_VERSION )
 		MESSAGE(STATUS "Using Maya Version: ${MAYA_VERSION}")
 	ENDIF( NOT MAYA_VERSION )
-	
+
 	SET( MAYA_DEFINITIONS "${MAYA_DEFINITIONS} -D_MAYA_VERSION_${MAYA_VERSION} -D_MAYA_VERSION=${MAYA_VERSION}" )
-	
+
 	INCLUDE_DIRECTORIES( ${MAYA_INCLUDE_DIR} )
 	LINK_DIRECTORIES( ${MAYA_LIBRARY_DIR} )
 ELSE ( MAYA_LOCATION )
