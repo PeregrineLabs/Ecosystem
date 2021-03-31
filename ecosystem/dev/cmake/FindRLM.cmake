@@ -25,7 +25,7 @@
 #  RLM_FOUND - true if RLM was found on the system
 #  RLM_LIBRARY_DIRS - the full set of library directories
 
-FIND_PATH ( RLM_Base_Dir src/license_to_run.h
+FIND_PATH ( RLM_Base_Dir src/rlm_admin.h
   ENV RLM_ROOT
   )
 
